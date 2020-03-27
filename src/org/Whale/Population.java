@@ -24,12 +24,21 @@ public class Population extends org.ChaffinchABC.Population{
 	double[] prob;
 	int[] dx, dy, rlu1, rlu2;
 	double ba, bb=0;
+
 	//double nthresh=1.8;
         double nthresh=4.1;
 	int px, py=0;
         int[][] lookUps;
         int[][] emplocs;
+        int[] subpopsize = new int[] {1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000};
+        int[] subpop;
+        int[] tutors;
+        int[] subpopstarts;
 	Parameters param;
+        int[] tutor;
+        int ntutors=5;
+        double problearn=0.7;
+        
         
         //int[][] rec=new int[100][100];
 	
@@ -44,14 +53,42 @@ public class Population extends org.ChaffinchABC.Population{
 		this.emplocs=emplocs;
 		
 		ninds=pop.length;
-                    
-		calculateSpatialArrangement();
-		preparePopulation();
-                makeDeadTerritories();
+                
+                makeSubPops();
+//		calculateSpatialArrangement();
+//		preparePopulation();
+//                makeDeadTerritories();
                 
 		makeNeighbours(nthresh);
-		setEmpiricalData();
+//		setEmpiricalData();
 	}
+        
+        public void makeSubPops(){
+         int ninds = 0;
+         
+         for (int i=0; i<subpopsize.length; i++){  
+            ninds += subpopsize[i];
+    }
+        
+         
+        subpop=new int[ninds];
+        int k=0;
+         for (int i=0; i<subpopsize.length; i++){ 
+             for(int j=0; j<subpopsize[i]; j++){
+                 subpop[k]=i;
+                 k++;
+             }
+        }
+        
+        subpopstarts= new int[subpopsize.length];
+        int start=0;
+        subpopstarts[0]=start; 
+        for(int i=1; i<subpopstarts.length; i++){
+            int n=subpopsize[i-1];
+            start += n;        
+            subpopstarts[i]=start;      
+        }
+}
         
         public void makeDeadTerritories(){
             int[][][]r=param.removes;
@@ -182,7 +219,68 @@ public class Population extends org.ChaffinchABC.Population{
 	}
 	
 	public org.Whale.Individual[] getTutors(int p) {
-		boolean fail=true;
+            int subpopp=subpop[p];
+            int poptut=subpopp;
+
+            double randomprob=param.nextDouble();
+            
+            if(randomprob>problearn){
+             if (param.nextInt(2)==1){
+                   poptut=subpopp+1;  
+                   if (subpopp==subpopsize.length-1){
+                      poptut=0;
+                   }
+               }
+               else{
+                   if(subpopp==0){
+                       poptut=subpopsize.length-1;
+                   }
+                   else {
+                       poptut=subpopp-1;
+                   }
+               }
+            }
+            
+
+            tutors=new int[ntutors];
+            
+        for(int i=0; i<ntutors;i++){
+            boolean found=true;
+            int a=0;
+            while (found){
+            a=param.nextInt(subpopsize[poptut])+subpopstarts[poptut];
+            found=false;
+            for (int j=0; j<i; j++){
+		if (a==tutors[j]){
+			found=true;
+		}
+             }
+            }
+            tutors[i]=a;
+        }
+            
+            
+/*
+                int a=param.nextInt(subpopsize[poptut])+subpopstarts[poptut];
+                for(int j=0;j<i;j++){
+                    if(tutors[j]==a){
+                    a=param.nextInt(subpopsize[poptut])+subpopstarts[poptut];
+                    j=-1;
+                    }
+                }
+                tutors[i]=a;
+               }
+ */           
+                                   
+            return tutors;
+                    
+                    
+        }           
+
+            
+            
+            /*
+            boolean fail=true;
 		
 		int tx=0;
 		int ty=0;
@@ -250,7 +348,7 @@ public class Population extends org.ChaffinchABC.Population{
                 if (ry>99){ry=99;}
                 
                 rec[rx][ry]++;
-                */
+                
 		//System.out.println("SELCHECK: "+p+" "+q+" "+ox+" "+tx+" "+oy+" "+ty);
 		
                 //System.out.println(getDistance(p,q)+" "+ba+" "+bb);
@@ -270,8 +368,8 @@ public class Population extends org.ChaffinchABC.Population{
 		}
 		
 		return x;
+	*/
 	
-	}
 	
 	public int[] calculateIDs() {
 		int n=0;
