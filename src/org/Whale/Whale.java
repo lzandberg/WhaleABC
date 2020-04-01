@@ -33,7 +33,7 @@ public class Whale {
 
 	//long t1, t2, t3,t4, t5, t6, it1, it2, it3, it4, it5;
 	
-        public Whale(){ //was empty
+        public Whale(){ 
                 System.out.println("Whale");
             	WhalePriors priors=new WhalePriors();
                 double [] x=priors.sampleFromPriors();
@@ -148,7 +148,7 @@ public class Whale {
 	
 	public void initiateSimulation(){
 		
-		
+		System.out.println("initiateSimulation");
 		inds=new WhaleIndividual[param.popSize];
 		
 		//System.out.println("Making individuals");
@@ -191,13 +191,15 @@ public class Whale {
 	}
 	
 	public void iterateSimulation(){
-		//System.out.println("Mortality...");
+		System.out.println("iterateSimulation");
 		
 		//t1=System.nanoTime();
-		
+                
+		/* No mortality in the Whales..?
 		for (int i=0; i<inds.length; i++){
 			inds[i].mortality();
-		}
+		}*/ 
+                
 		
 		//t2+=System.nanoTime()-t1;
 		//System.out.println("Song learning...");
