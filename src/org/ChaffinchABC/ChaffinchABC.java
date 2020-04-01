@@ -33,8 +33,16 @@ public class ChaffinchABC {
 
 	//long t1, t2, t3,t4, t5, t6, it1, it2, it3, it4, it5;
 	
-        public ChaffinchABC(){
-            
+        public ChaffinchABC(){ //was empty
+            	Priors priors=new Priors();
+                double [] x=priors.sampleFromPriors();
+            	param=new Parameters(x, priors.variables, System.currentTimeMillis());
+		int[] y={1};
+		param.setRepertoireSizes(y);
+                int[][]z={{1000, 10}};
+		param.setPopulationSizes(z);
+		int [][] locs={{0,0}};
+                runSimulation();
         }
 	
 	public ChaffinchABC(String fileLocation, long seed, int[][] locs, int[] rep, int[][] popSizes, double[] p, double[] q){
@@ -219,11 +227,13 @@ public class ChaffinchABC {
 		
 
 		public static void main (String args[]) {
+                    new ChaffinchABC();
+                    /*
 			String fileLocation="/home/rflachlan/Dropbox/ChaffMainlandN/";
                         Priors p=new Priors(System.currentTimeMillis());
                         double[] x=p.sampleFromPriors();
 			new ChaffinchABC(fileLocation, x, p.variables, System.currentTimeMillis());
-			
+			*/
 		}
 		
 
