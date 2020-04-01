@@ -47,13 +47,22 @@ public class Individual extends org.ChaffinchABC.Individual {
 	double matchThresh=0.1;
 	double mutationVariance=0.1;
 	double recombinationRate=0.001;
-	int numSylls=6;
+
 	double confBias=1.1;
         
+        	int numSylls=6;
         int numdims=2;
+        int memorylength=100;
+        int ns=0;
+        int memorysize=0;
+        double nb;
+        float songmemory[];            
+        double[] tutsongsim; 
+        
 	
-	int maxRep=20;	//this is used to limit array sizes
-	int mr;	//maxRep-1 ; to save some simple repetition later
+	//int maxRep=20;	//this is used to limit array sizes
+	int maxRep=1;
+        int mr;	//maxRep-1 ; to save some simple repetition later
 	
 	int repType=-1;	
 	//for the individuals that correspond to the empirical sample, this parameter is set to their repertoire size
@@ -68,6 +77,7 @@ public class Individual extends org.ChaffinchABC.Individual {
 	
 	float[] songBuffer;
 	int[] songFreq;
+        float[] songsim; 
 	double[] cumFreq, freq;
 	double[] powerLookUp;
 	int repSizes[];
@@ -76,7 +86,8 @@ public class Individual extends org.ChaffinchABC.Individual {
 	
 	long t1,t2,t3,t4,t5, t6;
 	
-	int ns=0;
+
+
         
 	public Individual(int territory, Parameters param, int repType){
 			
@@ -97,6 +108,8 @@ public class Individual extends org.ChaffinchABC.Individual {
 		this.confBias=param.confBias;
 	
                 ns=numSylls*numdims;
+                memorysize=numSylls*numdims*memorylength;
+                
                 //System.out.println(mutationVariance+" "+recombinationRate);
                 
 		int maxRep=param.maxRep;
@@ -139,7 +152,7 @@ public class Individual extends org.ChaffinchABC.Individual {
 	}
 	
 	
-	
+	/*
 	//at beginning of simulation run, repertoires are initiated with randomly selected values.
 	public void initiateRepertoire(){
             int k=0;
@@ -151,6 +164,23 @@ public class Individual extends org.ChaffinchABC.Individual {
 				//newRepertoire[i][j]=i*0.1+nextInt(3)*0.01;
 			}
 		}
+	}
+        */
+        
+        
+        	public void initiateMemory(){
+            int k=0;
+            songmemory = new float[memorysize]; 
+            
+		//make a new song? Or move this somewhere else to make population-wide startsong?
+			for (int j=0; j<ns; j++) {
+                                newRepertoire[j]=param.nextFloat()*20f;
+			}
+                        
+                        for(int i=0; i<memorylength; i++){
+                        songmemory[i] = newRepertoire[i%ns];
+                        }
+
 	}
 
 	
@@ -175,7 +205,7 @@ public class Individual extends org.ChaffinchABC.Individual {
 	//repertoire is filled according to the learningMethod.
 		
 	
-	
+	/*
 	public void learnSongs(){
 		if (isDead){
 			//t1=System.nanoTime();
@@ -196,6 +226,27 @@ public class Individual extends org.ChaffinchABC.Individual {
 			//return out;
 		}
 		//return null;
+	}
+        */
+        
+        	public void learnSongs(){
+		if (isDead){
+			//t1=System.nanoTime();
+			setRepertoireSize();
+			if (modelType==0) {
+				buildRepertoireSimple();
+			}
+			//else if (modelType==1){
+			//	buildRepertoireConformist();
+			//}
+			else if (modelType==2){
+				buildRepertoireConformist2();
+			}
+                        	else if (modelType==3){
+				buildRepertoire3();
+			}
+			mutate();
+		}
 	}
 	
 	//simple function to determine repertoire size for new male after replacement.
@@ -237,7 +288,7 @@ public class Individual extends org.ChaffinchABC.Individual {
 		
 		
 	}
-        
+             
         public double compareSyllables(float[] x, int s1, int a, float[] y, int s2, int b){
             
             int aa=a*numdims+s1*ns;
@@ -274,21 +325,38 @@ public class Individual extends org.ChaffinchABC.Individual {
 		}
 		return c;
 	}
+        
+        	public double compareSongsPow(float[] x, float[] y, int a, int b) {
+		double d=0;
+                
+                int aa=a*ns;
+                int bb=b*ns;
+                
+		for (int i=0; i<ns; i++) {
+                    d+=(x[aa]-y[bb])*(x[aa]-y[bb]);
+                    aa++;
+                    bb++;
+			//System.out.println(d+" "+x[i]+" "+y[i]);
+		}
+		return (Math.pow(d/(0.0+numSylls),nb));	
+	}
+	
+        
 
 	
 	public void buildRepertoireSimple(){
 		
 		Individual[] tutors=population.getTutors(territory);
 		//System.out.println(tutors.length);
-		int n=tutors.length;
-		int checker=maxRep*10;
-		for (int i=0; i<newRepSize; i++){
-			boolean found=true;
+		int n=tutors.length; //n=number of tutors
+		int checker=maxRep*10; //?
+		for (int i=0; i<newRepSize; i++){ //for each available spot in the repertoire (newRepertoireSize)
+			boolean found=true; 
 			int c2=0;
 			while (found){
 				found=false;
-				int t=param.nextInt(n);
-				int u=param.nextInt(tutors[t].repSize);
+				int t=param.nextInt(n); //pick random tutor t
+				int u=param.nextInt(tutors[t].repSize); //pick random song u from tutor t
 				//float[] h=tutors[t].repertoire[u];
 				
 				for (int j=0; j<i; j++){				
@@ -422,6 +490,48 @@ public class Individual extends org.ChaffinchABC.Individual {
 
 	}
         
+   
+	public void constructMemory3(Individual[] tutors) {
+		
+            songtypeCount=0;
+            boolean found;
+            double mindist;
+            
+            
+            int r; //repertoire size of each given tutor
+            int tl=tutors.length; // number of tutors
+                       //list with for each tutor the minimal song similarity comparing its (currently the tutors only) song 
+                       //with all songs in the individuals song memory
+                       // **Still need to figure out a way how to do this when the song rep size tutor>1**
+            for (int i=0; i<tl; i++) { //for each tutor
+                r=tutors[i].repSize; //determine repertoire size (r) for the tutor
+                mindist=Double.MAX_VALUE;
+                double x;
+
+                
+                double[] sc = new double[memorylength]; // make an array for the comparison of the tutors song with all of songMemory
+                for (int j = 0; j < r; j++) { //for each song in a tutors repertoire 
+                    
+                    for (int k=0; k<memorylength; k++) {  
+                                       x=compareSongsPow(tutors[i].repertoire, songmemory, j, k); 
+                
+                if (x<mindist){
+                    mindist=x;
+                }
+            }
+                  
+                 // if (minValue>matchThresh){
+                  tutsongsim[i]=mindist;   //add it to the tutor song similarity array
+                  System.arraycopy(tutors[i].repertoire, i*ns, songBuffer, songtypeCount*ns, ns); //add it to the songbuffer
+                  songtypeCount++;
+                  
+                 makeCumDistr();
+          //  }
+
+                }      
+            }
+            
+        }
         
         
         public void makeFLookUps(){
@@ -432,6 +542,14 @@ public class Individual extends org.ChaffinchABC.Individual {
             cumFreq[0]=freq[0];
             for (int i=1; i<songtypeCount; i++) {
 		cumFreq[i]=freq[i]+cumFreq[i-1];
+            }
+        }
+        
+        public void makeCumDistr(){
+            cumFreq[0]=tutsongsim[0];
+            
+            for (int i=1; i<songtypeCount; i++) {
+		cumFreq[i]=tutsongsim[i]+cumFreq[i-1];
             }
         }
         
@@ -502,6 +620,8 @@ public class Individual extends org.ChaffinchABC.Individual {
 		}
 	}
 	
+        	
+
 	
 	//public void buildRepertoireConformist() {
 	//	Individual[] tutors=population.getTutors(territory);
@@ -509,11 +629,25 @@ public class Individual extends org.ChaffinchABC.Individual {
 	//	pickSongs();
 	//}
 	
+        /*
 	public void buildRepertoireConformist2() {
 		//t2=System.nanoTime();
 		Individual[] tutors=population.getTutors(territory);
 		//t3=System.nanoTime();
 		constructMemory2(tutors);
+                
+                //checkMemory();
+		//t4=System.nanoTime();
+		pickSongs2();
+		//t5=System.nanoTime();
+	}
+*/
+        
+        	public void buildRepertoire3() {
+		//t2=System.nanoTime();
+		Individual[] tutors=population.getTutors(territory); //in this case territory is individual ID
+		//t3=System.nanoTime();
+		constructMemory3(tutors);
                 
                 //checkMemory();
 		//t4=System.nanoTime();

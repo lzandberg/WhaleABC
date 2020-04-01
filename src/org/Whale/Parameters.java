@@ -46,7 +46,8 @@ public class Parameters extends org.ChaffinchABC.Parameters implements Serializa
 	double confBias=1.5;
 	
 	int[] repSizes= {1,2,2,2,2,3,3,3,4,4,5};
-	int maxRep=8;
+	//int maxRep=8; //Old chaffinch
+        int maxRep=1; //Whale
 	
 	int sylsPerSong=6;
         int numdims=2;

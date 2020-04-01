@@ -17,7 +17,7 @@ import org.apache.commons.math3.distribution.GammaDistribution;
 
 public class Population extends org.ChaffinchABC.Population{
 
-	Individual[] pop, emppop;
+	Individual[] pop, emppop, tutors;
 	Individual[][] neighbours;
 	int ninds=0;
 	int nemp=0;
@@ -32,7 +32,7 @@ public class Population extends org.ChaffinchABC.Population{
         int[][] emplocs;
         int[] subpopsize = new int[] {1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000};
         int[] subpop;
-        int[] tutors;
+        //int[] tutors;
         int[] subpopstarts;
 	Parameters param;
         int[] tutor;
@@ -43,7 +43,7 @@ public class Population extends org.ChaffinchABC.Population{
         //int[][] rec=new int[100][100];
 	
 	public Population(Individual[] pop, Parameters param, int[][] emplocs){
-		this.pop=pop;
+		this.pop=pop; //how to make sure pop=sum(subpopulations)??
 		px=param.nx;
 		py=param.ny;
 		this.param=param;
@@ -51,7 +51,8 @@ public class Population extends org.ChaffinchABC.Population{
 		this.bb=param.betab/param.betaa;
 		this.nthresh=param.neighthresh;
 		this.emplocs=emplocs;
-		
+		int popsize=0;
+                
 		ninds=pop.length;
                 
                 makeSubPops();
@@ -218,13 +219,12 @@ public class Population extends org.ChaffinchABC.Population{
 		}
 	}
 	
-	public org.Whale.Individual[] getTutors(int p) {
-            int subpopp=subpop[p];
-            int poptut=subpopp;
-
+	public Individual [] getTutors(int p) {
+            int subpopp=subpop[p]; //which subpopulation is ID p from
+            int poptut=subpopp;    //tutor population by default is own subpopulation 
             double randomprob=param.nextDouble();
             
-            if(randomprob>problearn){
+            if(randomprob>problearn){  //only learning from neighbouring population when...
              if (param.nextInt(2)==1){
                    poptut=subpopp+1;  
                    if (subpopp==subpopsize.length-1){
@@ -241,8 +241,9 @@ public class Population extends org.ChaffinchABC.Population{
                }
             }
             
-
-            tutors=new int[ntutors];
+            tutors= new Individual [ntutors];
+            int[] tut;
+            tut= new int [ntutors];
             
         for(int i=0; i<ntutors;i++){
             boolean found=true;
@@ -251,14 +252,22 @@ public class Population extends org.ChaffinchABC.Population{
             a=param.nextInt(subpopsize[poptut])+subpopstarts[poptut];
             found=false;
             for (int j=0; j<i; j++){
-		if (a==tutors[j]){
+		if (a==tut[j]){
 			found=true;
 		}
              }
             }
-            tutors[i]=a;
+            tut[i]=a;
         }
-            
+        
+        for (int i=0; i<ntutors; i++){
+            tutors[i]=pop[tut[i]];
+ 
+        }
+                        return tutors;
+                    
+                    
+        }  
             
 /*
                 int a=param.nextInt(subpopsize[poptut])+subpopstarts[poptut];
@@ -272,10 +281,7 @@ public class Population extends org.ChaffinchABC.Population{
                }
  */           
                                    
-            return tutors;
-                    
-                    
-        }           
+         
 
             
             
