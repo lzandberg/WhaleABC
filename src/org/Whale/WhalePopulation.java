@@ -15,10 +15,10 @@ import java.util.LinkedList;
 
 import org.apache.commons.math3.distribution.GammaDistribution;
 
-public class Population extends org.ChaffinchABC.Population{
+public class WhalePopulation extends org.ChaffinchABC.Population{
 
-	Individual[] pop, emppop, tutors;
-	Individual[][] neighbours;
+	WhaleIndividual[] pop, emppop, tutors;
+	WhaleIndividual[][] neighbours;
 	int ninds=0;
 	int nemp=0;
 	double[] prob;
@@ -34,7 +34,7 @@ public class Population extends org.ChaffinchABC.Population{
         int[] subpop;
         //int[] tutors;
         int[] subpopstarts;
-	Parameters param;
+	WhaleParameters param;
         int[] tutor;
         int ntutors=5;
         double problearn=0.7;
@@ -42,7 +42,7 @@ public class Population extends org.ChaffinchABC.Population{
         
         //int[][] rec=new int[100][100];
 	
-	public Population(Individual[] pop, Parameters param, int[][] emplocs){
+	public WhalePopulation(WhaleIndividual[] pop, WhaleParameters param, int[][] emplocs){
 		this.pop=pop; //how to make sure pop=sum(subpopulations)??
 		px=param.nx;
 		py=param.ny;
@@ -173,7 +173,7 @@ public class Population extends org.ChaffinchABC.Population{
 	
 	public void setEmpiricalData() {
 		nemp=emplocs.length;
-		emppop=new Individual[emplocs.length];
+		emppop=new WhaleIndividual[emplocs.length];
 		int n=0;
 		for (int i=0; i<emplocs.length; i++) {
 			//System.out.println(i+" "+emplocs[i][0]+ " "+ emplocs[i][1]);
@@ -191,13 +191,13 @@ public class Population extends org.ChaffinchABC.Population{
 	}
 	
 	public void makeNeighbours(double thresh) {
-		neighbours=new Individual[ninds][];
-		Individual[] buf=new Individual[ninds];
+		neighbours=new WhaleIndividual[ninds][];
+		WhaleIndividual[] buf=new WhaleIndividual[ninds];
 		double t=thresh*thresh;
 		int x1, y1, x2, y2;
 		double d;
 		for (int i=0; i<ninds; i++) {
-                    buf=new Individual[ninds];
+                    buf=new WhaleIndividual[ninds];
 			x1=rlu1[i];
 			y1=rlu2[i];
 			int count=0;
@@ -210,7 +210,7 @@ public class Population extends org.ChaffinchABC.Population{
 					count++;
 				}
 			}
-			neighbours[i]=new Individual[count];
+			neighbours[i]=new WhaleIndividual[count];
                         for (int j=0; j<count; j++){
                             neighbours[i][j]=buf[j];
                         }
@@ -219,7 +219,7 @@ public class Population extends org.ChaffinchABC.Population{
 		}
 	}
 	
-	public Individual [] getTutors(int p) {
+	public WhaleIndividual [] getTutors(int p) {
             int subpopp=subpop[p]; //which subpopulation is ID p from
             int poptut=subpopp;    //tutor population by default is own subpopulation 
             double randomprob=param.nextDouble();
@@ -241,7 +241,7 @@ public class Population extends org.ChaffinchABC.Population{
                }
             }
             
-            tutors= new Individual [ntutors];
+            tutors= new WhaleIndividual [ntutors];
             int[] tut;
             tut= new int [ntutors];
             

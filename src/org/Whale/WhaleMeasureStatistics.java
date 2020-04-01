@@ -12,10 +12,10 @@ package org.Whale;
 
 import java.util.Arrays;
 
-public class MeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
+public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 
-	Population population;
-	Parameters param;
+	WhalePopulation population;
+	WhaleParameters param;
 	double[] shareprofile;
 	public double ntypes;
 	
@@ -38,7 +38,7 @@ public class MeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 	
 	boolean typeEmpirical=true;
 	
-	public MeasureStatistics(org.Whale.Population population, Parameters param) {
+	public WhaleMeasureStatistics(org.Whale.WhalePopulation population, WhaleParameters param) {
             this.population=population;
             this.param=param;
             typeEmpirical=true;
@@ -50,7 +50,7 @@ public class MeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
             calculateStats();
         }
         
-        public MeasureStatistics(Population population, EmpData ed, Parameters param) {
+        public WhaleMeasureStatistics(WhalePopulation population, EmpData ed, WhaleParameters param) {
 		this.population=population;
 		this.param=param;
 		dsim=param.typeThresh;

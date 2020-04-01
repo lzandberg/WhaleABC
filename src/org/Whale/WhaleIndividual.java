@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 //This is the main class for objects representing individuals - including all song learning behaviour
 
-public class Individual extends org.ChaffinchABC.Individual {
+public class WhaleIndividual extends org.ChaffinchABC.Individual {
 
 	int modelType=0;
 	
@@ -34,8 +34,8 @@ public class Individual extends org.ChaffinchABC.Individual {
 	//the id for this individual within the population
 	
 	//the population object (to which this individual belongs)
-	Population population;
-	Parameters param;
+	WhalePopulation population;
+	WhaleParameters param;
 	//Below are a list of characteristics that are taken from the defaults object.
 	//see defaults for more info
 	//Defaults defaults;
@@ -89,7 +89,7 @@ public class Individual extends org.ChaffinchABC.Individual {
 
 
         
-	public Individual(int territory, Parameters param, int repType){
+	public WhaleIndividual(int territory, WhaleParameters param, int repType){
 			
 		this.territory=territory;
 		//this.random=random;
@@ -130,7 +130,7 @@ public class Individual extends org.ChaffinchABC.Individual {
 		updateRepertoire();
 	}
 	
-	public void setPopulation(Population population) {
+	public void setPopulation(WhalePopulation population) {
 		this.population=population;
 	}
 	
@@ -346,7 +346,7 @@ public class Individual extends org.ChaffinchABC.Individual {
 	
 	public void buildRepertoireSimple(){
 		
-		Individual[] tutors=population.getTutors(territory);
+		WhaleIndividual[] tutors=population.getTutors(territory);
 		//System.out.println(tutors.length);
 		int n=tutors.length; //n=number of tutors
 		int checker=maxRep*10; //?
@@ -455,7 +455,7 @@ public class Individual extends org.ChaffinchABC.Individual {
 	*/
 	
 	
-	public void constructMemory2(Individual[] tutors) {
+	public void constructMemory2(WhaleIndividual[] tutors) {
 		
             songtypeCount=0;
             boolean found;
@@ -491,7 +491,7 @@ public class Individual extends org.ChaffinchABC.Individual {
 	}
         
    
-	public void constructMemory3(Individual[] tutors) {
+	public void constructMemory3(WhaleIndividual[] tutors) {
 		
             songtypeCount=0;
             boolean found;
@@ -624,7 +624,7 @@ public class Individual extends org.ChaffinchABC.Individual {
 
 	
 	//public void buildRepertoireConformist() {
-	//	Individual[] tutors=population.getTutors(territory);
+	//	WhaleIndividual[] tutors=population.getTutors(territory);
 	//	constructMemory(tutors);
 	//	pickSongs();
 	//}
@@ -632,7 +632,7 @@ public class Individual extends org.ChaffinchABC.Individual {
         /*
 	public void buildRepertoireConformist2() {
 		//t2=System.nanoTime();
-		Individual[] tutors=population.getTutors(territory);
+		WhaleIndividual[] tutors=population.getTutors(territory);
 		//t3=System.nanoTime();
 		constructMemory2(tutors);
                 
@@ -645,7 +645,7 @@ public class Individual extends org.ChaffinchABC.Individual {
         
         	public void buildRepertoire3() {
 		//t2=System.nanoTime();
-		Individual[] tutors=population.getTutors(territory); //in this case territory is individual ID
+		WhaleIndividual[] tutors=population.getTutors(territory); //in this case territory is individual ID
 		//t3=System.nanoTime();
 		constructMemory3(tutors);
                 

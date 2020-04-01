@@ -1,26 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.Whale;
-
 
 import java.util.Random;
 
-/**
- *
- * @author lieszandberg
- */
-
-
-public class Whale extends org.ChaffinchABC.ChaffinchABC {
- 
+public class Whale {
 	
 
-	Parameters param;
-	Individual[] inds;
-	org.Whale.Population population;
+	WhaleParameters param;
+	WhaleIndividual[] inds;
+	WhalePopulation population;
 	
 	public int[][]locs;
 	public int[] repSizes;
@@ -46,13 +33,22 @@ public class Whale extends org.ChaffinchABC.ChaffinchABC {
 
 	//long t1, t2, t3,t4, t5, t6, it1, it2, it3, it4, it5;
 	
-        public Whale(){
-            
+        public Whale(){ //was empty
+                System.out.println("Whale");
+            	WhalePriors priors=new WhalePriors();
+                double [] x=priors.sampleFromPriors();
+            	param=new WhaleParameters(x, priors.variables, System.currentTimeMillis());
+		int[] y={1};
+		param.setRepertoireSizes(y);
+                int[][]z={{1000, 10}};
+		param.setPopulationSizes(z);
+		int [][] locs={{0,0}};
+                runSimulation();
         }
 	
 	public Whale(String fileLocation, long seed, int[][] locs, int[] rep, int[][] popSizes, double[] p, double[] q){
 		this.fileLocation=fileLocation;
-		param=new Parameters(p,q, seed);
+		param=new WhaleParameters(p,q, seed);
 		param.setRepertoireSizes(rep);
                 param.setPopulationSizes(popSizes);
 		this.locs=locs;
@@ -62,7 +58,7 @@ public class Whale extends org.ChaffinchABC.ChaffinchABC {
 		runSimulation();
 		//System.out.println("Measuring stats");
 		//MeasureStatistics ms=new MeasureStatistics(population, param, ed);
-		MeasureStatistics ms=new MeasureStatistics(population, param);
+		WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, param);
 		stats=ms.out;
 	}
         	
@@ -72,11 +68,11 @@ public class Whale extends org.ChaffinchABC.ChaffinchABC {
 		locs=ed.locs;
 		repSizes=ed.repSizeD;
                 popSizes=ed.popSizes;
-		param=new Parameters(p, q, seed);
+		param=new WhaleParameters(p, q, seed);
 		param.setRepertoireSizes(repSizes);
                 param.setPopulationSizes(popSizes);
 		initiateSimulation();
-		MeasureStatistics ms=new MeasureStatistics(population, ed, param);
+		WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, ed, param);
 		stats=ms.out;
 		for (int i=0; i<stats.length; i++) {System.out.println(measNames[i]+" "+stats[i]);}
                 
@@ -87,6 +83,7 @@ public class Whale extends org.ChaffinchABC.ChaffinchABC {
 	
 	
 	public void runSimulation(){
+                System.out.println("runSimulation");
 		long a=System.currentTimeMillis();
 
 		//System.out.println("Initiating...");
@@ -152,21 +149,21 @@ public class Whale extends org.ChaffinchABC.ChaffinchABC {
 	public void initiateSimulation(){
 		
 		
-		inds=new Individual[param.popSize];
+		inds=new WhaleIndividual[param.popSize];
 		
 		//System.out.println("Making individuals");
 
 		for (int i=0; i<param.popSize; i++){
-			inds[i]=new Individual(i, param, -1);
+			inds[i]=new WhaleIndividual(i, param, -1);
 		}
 		
 		//System.out.println("Making population structure");
-		population=new Population(inds, param, locs);
+		population=new WhalePopulation(inds, param, locs);
 		
 		for (int i=0; i<param.popSize; i++){
 			inds[i].setPopulation(population);
 		}
-		int[] x=population.calculateEmpIDs();
+		//int[] x=population.calculateEmpIDs();
                 
                 for (int i=0; i<inds.length; i++){
                     inds[i].mortalityRate=1;
@@ -232,14 +229,16 @@ public class Whale extends org.ChaffinchABC.ChaffinchABC {
 		
 
 		public static void main (String args[]) {
+                    System.out.println("mainWhale");
+                    new org.Whale.Whale();
+                   
+                    /*
 			String fileLocation="/home/rflachlan/Dropbox/ChaffMainlandN/";
                         Priors p=new Priors(System.currentTimeMillis());
                         double[] x=p.sampleFromPriors();
-			new Whale(fileLocation, x, p.variables, System.currentTimeMillis());
-			
+			new ChaffinchABC(fileLocation, x, p.variables, System.currentTimeMillis());
+			*/
 		}
 		
 
-	
-
-}
+	}

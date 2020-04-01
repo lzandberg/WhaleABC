@@ -15,7 +15,7 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import org.ChaffinchABC.ZigguratNormalizedGaussianSampler;
 
-public class Parameters extends org.ChaffinchABC.Parameters implements Serializable {
+public class WhaleParameters extends org.ChaffinchABC.Parameters implements Serializable {
 	
     private long DOUBLE_MASK = (1L << 53) - 1;
     private double NORM_53 = 1. / (1L << 53);
@@ -69,12 +69,12 @@ public class Parameters extends org.ChaffinchABC.Parameters implements Serializa
 	
 	
 	
-	public Parameters(){
+	public WhaleParameters(){
 		long seed=System.currentTimeMillis();
 		setUp(seed);
 	}
 	
-	public Parameters(double[] p, double[] q, long seed){
+	public WhaleParameters(double[] p, double[] q, long seed){
 		//for (int i=0; i<p.length; i++) {
 		//	System.out.print(i+" "+p[i]+" ");
 		//}
@@ -101,7 +101,7 @@ public class Parameters extends org.ChaffinchABC.Parameters implements Serializa
 	}
 	
 	
-	public Parameters(Parameters p){
+	public WhaleParameters(WhaleParameters p){
 		
 		setUp(p.nextLong());
 	}

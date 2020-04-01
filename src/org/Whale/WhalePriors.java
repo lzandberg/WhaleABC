@@ -12,7 +12,7 @@ package org.Whale;
 
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 
-public class Priors extends org.ChaffinchABC.Priors{
+public class WhalePriors extends org.ChaffinchABC.Priors{
 
 	private static final long DOUBLE_MASK = (1L << 53) - 1;
         private static final double NORM_53 = 1. / (1L << 53);
@@ -61,11 +61,11 @@ public class Priors extends org.ChaffinchABC.Priors{
        
         
         
-        public Priors(){
+        public WhalePriors(){
             nParams=priorType.length;
         }
        
-	public Priors(long seed) {
+	public WhalePriors(long seed) {
 		setSeed(seed);
 		
 		
