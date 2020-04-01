@@ -43,14 +43,16 @@ public class WhalePopulation extends org.ChaffinchABC.Population{
         //int[][] rec=new int[100][100];
 	
 	public WhalePopulation(WhaleIndividual[] pop, WhaleParameters param, int[][] emplocs){
+            	System.out.println("WhalePopulation");
+
 		this.pop=pop; //how to make sure pop=sum(subpopulations)??
 		px=param.nx;
 		py=param.ny;
 		this.param=param;
 		this.ba=param.betaa;
 		this.bb=param.betab/param.betaa;
-		this.nthresh=param.neighthresh;
-		this.emplocs=emplocs;
+		//this.nthresh=param.neighthresh;
+		//this.emplocs=emplocs;
 		int popsize=0;
                 
 		ninds=pop.length;
@@ -60,11 +62,12 @@ public class WhalePopulation extends org.ChaffinchABC.Population{
 //		preparePopulation();
 //                makeDeadTerritories();
                 
-		makeNeighbours(nthresh);
+		//makeNeighbours(nthresh);
 //		setEmpiricalData();
 	}
         
         public void makeSubPops(){
+            System.out.println("makeSubPops");
          int ninds = 0;
          
          for (int i=0; i<subpopsize.length; i++){  
@@ -220,11 +223,14 @@ public class WhalePopulation extends org.ChaffinchABC.Population{
 	}
 	
 	public WhaleIndividual [] getTutors(int p) {
+            //System.out.println("getTutors");
             int subpopp=subpop[p]; //which subpopulation is ID p from
             int poptut=subpopp;    //tutor population by default is own subpopulation 
             double randomprob=param.nextDouble();
+            //System.out.println("problearn = " + problearn + " & randomprob = " + randomprob);
             
             if(randomprob>problearn){  //only learning from neighbouring population when...
+            //System.out.println("learnFromOtherPop");
              if (param.nextInt(2)==1){
                    poptut=subpopp+1;  
                    if (subpopp==subpopsize.length-1){
@@ -264,6 +270,7 @@ public class WhalePopulation extends org.ChaffinchABC.Population{
             tutors[i]=pop[tut[i]];
  
         }
+                             // System.out.println("return Tutors");
                         return tutors;
                     
                     
