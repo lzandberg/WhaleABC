@@ -253,8 +253,15 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 			mutate();
 		}*/
                 //System.out.println("learnSongs" + iter);
+                
                 buildRepertoire3();
                 mutate();
+                System.out.println(iter);
+                iter+=ns;
+
+                if (iter>=songmemory.length){
+                    iter=0;
+                }
                 
 	}
 	
@@ -606,8 +613,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 		double v;
 		int t=0;
 		int c2=songtypeCount-1;
-                iter=whale.getIter();
-                //System.out.println("iter = " + iter);
+                
                 if (newRepSize>songtypeCount){
                     //System.out.println(songtypeCount+" "+newRepSize+" "+param.mutationVar+" "+param.confBias);
                     newRepSize=songtypeCount;
@@ -620,20 +626,15 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 			v=param.nextDouble()*cumFreq[c2];
 			for (j=0; j<songtypeCount; j++){
 				if (v<cumFreq[j]){
-					
-					//for (int k=0; k<numSylls; k++) {
-					//	newRepertoire[i][k]=songBuffer[j][k];
-					//}
+
                                         // Check that oldsong is replaced by different newSong
                                         float[] newSong = new float[ns];
                                         System.arraycopy(songBuffer, j*ns, newSong, 0, ns);
-                                        System.out.println("songBuffer = " + songBuffer);
-                                        System.out.println("chosen song = " + newSong.length);
-                                        int x=iter%memorylength;
-                                        //
+                                        //System.out.println("newsongOrig = " + Arrays.toString(newSong));
                                         System.arraycopy(songBuffer, j*ns, newRepertoire, i*ns, ns); //copy to repertoire
-                                        System.arraycopy(songBuffer, j*ns, songmemory, i*ns, x * ns); //copy to songmemory
-                                       //how to make it overwrite the oldest memory?
+                                        //System.arraycopy(songBuffer, j*ns, songmemory, iter, ns); //copy to songmemory
+                                        //System.out.println("newmemory = " + Arrays.toString(songmemory));
+                                        //how to make it overwrite the oldest memory?
                                         
 					//newRepertoire[i]=songBuffer[j];
                                         //System.out.println(i+" "+j);
@@ -708,27 +709,27 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
             float m=0;
             
             int k=0;
-            for (i=0; i<newRepSize; i++){
+            for (i=0; i<newRepSize; i++){ //For each song in newRepertoire
 			
-		for (j=0; j<ns; j++) {
+		for (j=0; j<ns; j++) { //For each syllable-dimension
 				
-                    newRepertoire[k]+=(float)(param.nextGaussian()*mutationVariance);
+                    newRepertoire[k]+=(float)(param.nextGaussian()*mutationVariance); //Change float k in the repertoire a little bit
                     k++;
 		}
             }
             int r=0;
             int a=0;
             int maxtries=5;
-            for (i=0; i<newRepSize; i++){
-		if (param.nextDouble()<recombinationRate) {				
+            for (i=0; i<newRepSize; i++){ //for each song in the repertoire
+		if (param.nextDouble()<recombinationRate) {	 //if probability			
                     boolean found=true;
                     int c=0;
                     while(found){
-                        int q=param.nextInt(songtypeCount);
-                        r=(param.nextInt(numSylls-1)+1)*numdims;
-                        int b=r+ns*q;
+                        int q=param.nextInt(songtypeCount);         //
+                        r=(param.nextInt(numSylls-1)+1)*numdims;    //get a random integer for a syllable and the corresponding dimension
+                        int b=r+ns*q;                               //in a certain song in the songBuffer
                         a=0;
-                        for (j=r; j<ns; j++) {
+                        for (j=r; j<ns; j++) {                      //for sylldim j in a 
                             tempRep[a]=songBuffer[b]+(float)(param.nextGaussian()*mutationVariance);
                             a++;
                             b++;
@@ -749,6 +750,9 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
                     }
                 }
             }
+            //System.out.println("newmemory = " + Arrays.toString(songmemory));
+            System.arraycopy(newRepertoire, 0, songmemory, iter, ns); //copy mutated song to songmemory
+            //System.out.println("newmemory = " + Arrays.toString(songmemory));
 	}
 	
 	
