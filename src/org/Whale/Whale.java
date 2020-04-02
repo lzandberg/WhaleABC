@@ -12,7 +12,7 @@ public class Whale {
 	public int[][]locs;
 	public int[] repSizes;
         public int[][] popSizes;
-	
+	public int iter;
 	public double[] stats;
 	
 	public String fileLocation="/data/home/btw774/";
@@ -29,6 +29,7 @@ public class Whale {
 			"WTDAll", "WTD1", "WTD2", "WTD3", "WTD4", "WTD5", "SylAverageSim", "SylSingletons", "SylRares", 
 			"SylInts", "SylCommons", "SylMaxFreq", "Sylh1", "SylShZero", "SylShSingleton", "SylShMults",
 			"SylShAll", "SylShMean", "SylRatio"};
+
 	
 
 	//long t1, t2, t3,t4, t5, t6, it1, it2, it3, it4, it5;
@@ -105,6 +106,7 @@ public class Whale {
 		it5=0;
 		*/
 		for (int i=0; i<nYears; i++){
+                    System.out.println("iterateSimulation = " + i + "/" + nYears);
 			/*
 			if (j==100) {
 				j=0;
@@ -145,6 +147,7 @@ public class Whale {
 		//System.out.println((b-a)+" "+(c-b)+" "+(d-c));
 
 	}
+        
 	
 	public void initiateSimulation(){
 		
@@ -191,17 +194,13 @@ public class Whale {
 	}
 	
 	public void iterateSimulation(){
-		System.out.println("iterateSimulation");
-		
-		//t1=System.nanoTime();
-                
+
 		/* No mortality in the Whales..?
+                
 		for (int i=0; i<inds.length; i++){
 			inds[i].mortality();
 		}*/ 
                 
-		
-		//t2+=System.nanoTime()-t1;
 		//System.out.println("Song learning...");
 		for (int i=0; i<inds.length; i++){
 			inds[i].learnSongs();
