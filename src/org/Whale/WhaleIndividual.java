@@ -36,12 +36,12 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 	//the population object (to which this individual belongs)
 	WhalePopulation population;
 	WhaleParameters param;
+        Whale whale;
 	//Below are a list of characteristics that are taken from the defaults object.
 	//see defaults for more info
 	//Defaults defaults;
 	
         boolean isDeadTerritory=false;
-        
 	double mortalityRate=0.4;
 
 	double matchThresh=0.1;
@@ -50,12 +50,13 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 
 	double confBias=1.1;
         
-        	int numSylls=6;
+        	int numSylls=4;
         int numdims=2;
         int memorylength=100;
         int ns=0;
         int memorysize=0;
-        double nb;
+        int iter;
+        double nb = 1;
         float songmemory[];            
         double[] tutsongsim; 
         
@@ -90,12 +91,11 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 
         
 	public WhaleIndividual(int territory, WhaleParameters param, int repType){
-			
+		//System.out.println("WhaleIndividual");	
 		this.territory=territory;
 		//this.random=random;
 		
 		this.param=param;
-		
 		this.repType=repType;
 			
 		this.modelType=param.modelType;
@@ -128,6 +128,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 		setRepertoireSize();
 		initiateRepertoire();
 		updateRepertoire();
+                initiateMemory();
 	}
 	
 	public void setPopulation(WhalePopulation population) {
@@ -152,10 +153,11 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 	}
 	
 	
-	/*
+	
 	//at beginning of simulation run, repertoires are initiated with randomly selected values.
 	public void initiateRepertoire(){
             int k=0;
+            //System.out.println("newRepSize= " + newRepSize );
 		for (int i=0; i<newRepSize; i++){
 			for (int j=0; j<ns; j++) {
 				//newRepertoire[i][j]=param.nextFloat()*0.2f+1000*j;
@@ -165,11 +167,11 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 			}
 		}
 	}
-        */
+        
         
         
         	public void initiateMemory(){
-            int k=0;
+            //int k=0;
             songmemory = new float[memorysize]; 
             
 		//make a new song? Or move this somewhere else to make population-wide startsong?
@@ -177,7 +179,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
                                 newRepertoire[j]=param.nextFloat()*20f;
 			}
                         
-                        for(int i=0; i<memorylength; i++){
+                        for(int i=0; i<memorysize; i++){ //fill up memory with that one song
                         songmemory[i] = newRepertoire[i%ns];
                         }
 
@@ -187,6 +189,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 	
 	//at the end of each year, each replaced individual's song values are updated to their newly calculated ones
 	public void updateRepertoire(){
+            //System.out.println("updateRepertoire");
 		if (isDead){
                     
                     System.arraycopy(newRepertoire, 0, repertoire, 0, newRepSize*ns);
@@ -230,9 +233,11 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
         */
         
         	public void learnSongs(){
-		if (isDead){
+                    //System.out.println("learnSongs");
+                   //at the moment no mortality among the whales. 
+		/* if (isDead){
 			//t1=System.nanoTime();
-			setRepertoireSize();
+			//setRepertoireSize();
 			if (modelType==0) {
 				buildRepertoireSimple();
 			}
@@ -244,15 +249,20 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 			}
                         	else if (modelType==3){
 				buildRepertoire3();
-			}
+			} 
 			mutate();
-		}
+		}*/
+                //System.out.println("learnSongs" + iter);
+                buildRepertoire3();
+                mutate();
+                
 	}
 	
 	//simple function to determine repertoire size for new male after replacement.
 	//this depends on whether you are from the original empirically sampled set (repType>=0) or not.
 	
 	public void setRepertoireSize(){
+            //System.out.println("setRepertoireSize");
 		if (repType<0){
 			newRepSize=repSizes[param.nextInt(mr)];
 		}
@@ -491,8 +501,8 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 	}
         
    
-	public void constructMemory3(WhaleIndividual[] tutors) {
-		
+	public void constructMemory3(WhaleIndividual[] tutors) { // constructs memory of tutors songs of which one song will eventually be picked
+            //System.out.println("constructMemory3"); 
             songtypeCount=0;
             boolean found;
             double mindist;
@@ -500,12 +510,15 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
             
             int r; //repertoire size of each given tutor
             int tl=tutors.length; // number of tutors
+            tutsongsim = new double[tl] ;
                        //list with for each tutor the minimal song similarity comparing its (currently the tutors only) song 
                        //with all songs in the individuals song memory
                        // **Still need to figure out a way how to do this when the song rep size tutor>1**
             for (int i=0; i<tl; i++) { //for each tutor
+               
                 r=tutors[i].repSize; //determine repertoire size (r) for the tutor
                 mindist=Double.MAX_VALUE;
+                
                 double x;
 
                 
@@ -513,19 +526,23 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
                 for (int j = 0; j < r; j++) { //for each song in a tutors repertoire 
                     
                     for (int k=0; k<memorylength; k++) {  
-                                       x=compareSongsPow(tutors[i].repertoire, songmemory, j, k); 
+                         x=compareSongsPow(tutors[i].repertoire, songmemory, j, k); 
                 
-                if (x<mindist){
-                    mindist=x;
-                }
-            }
+                        if (x<mindist){
+                            mindist=x;
+
+                        } 
+                    }
                   
                  // if (minValue>matchThresh){
+                  //System.out.println("tutor song similarity = " + mindist);
                   tutsongsim[i]=mindist;   //add it to the tutor song similarity array
-                  System.arraycopy(tutors[i].repertoire, i*ns, songBuffer, songtypeCount*ns, ns); //add it to the songbuffer
+ 
+                  System.arraycopy(tutors[i].repertoire, 0, songBuffer, songtypeCount*ns, ns); //add it to the songbuffer
+                  //System.out.println("copied tutorsong to songBuffer");
                   songtypeCount++;
                   
-                 makeCumDistr();
+                  makeCumDistr();
           //  }
 
                 }      
@@ -546,6 +563,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
         }
         
         public void makeCumDistr(){
+           //System.out.println("makeCumDistr");
             cumFreq[0]=tutsongsim[0];
             
             for (int i=1; i<songtypeCount; i++) {
@@ -588,6 +606,8 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 		double v;
 		int t=0;
 		int c2=songtypeCount-1;
+                System.out.println("iter = " + (whale.getIter()+1));
+                //System.out.println("iter = " + iter);
                 if (newRepSize>songtypeCount){
                     //System.out.println(songtypeCount+" "+newRepSize+" "+param.mutationVar+" "+param.confBias);
                     newRepSize=songtypeCount;
@@ -604,8 +624,16 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 					//for (int k=0; k<numSylls; k++) {
 					//	newRepertoire[i][k]=songBuffer[j][k];
 					//}
-                                        
-                                        System.arraycopy(songBuffer, j*ns, newRepertoire, i*ns, ns);
+                                        // Check that oldsong is replaced by different newSong
+                                        float[] newSong = new float[ns];
+                                        System.arraycopy(songBuffer, j*ns, newSong, 0, ns);
+                                        System.out.println("songBuffer = " + songBuffer);
+                                        System.out.println("chosen song = " + newSong.length);
+                                        int x=iter%memorylength;
+                                        //
+                                        System.arraycopy(songBuffer, j*ns, newRepertoire, i*ns, ns); //copy to repertoire
+                                        System.arraycopy(songBuffer, j*ns, songmemory, i*ns, x * ns); //copy to songmemory
+                                       //how to make it overwrite the oldest memory?
                                         
 					//newRepertoire[i]=songBuffer[j];
                                         //System.out.println(i+" "+j);
@@ -644,6 +672,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 */
         
         	public void buildRepertoire3() {
+                //System.out.println("buildRepertoire3");
 		//t2=System.nanoTime();
 		WhaleIndividual[] tutors=population.getTutors(territory); //in this case territory is individual ID
 		//t3=System.nanoTime();
