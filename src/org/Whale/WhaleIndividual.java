@@ -606,7 +606,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 		double v;
 		int t=0;
 		int c2=songtypeCount-1;
-                System.out.println("iter = " + (whale.getIter()+1));
+                iter=whale.getIter();
                 //System.out.println("iter = " + iter);
                 if (newRepSize>songtypeCount){
                     //System.out.println(songtypeCount+" "+newRepSize+" "+param.mutationVar+" "+param.confBias);
