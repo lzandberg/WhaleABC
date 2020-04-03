@@ -256,7 +256,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
                 
                 buildRepertoire3();
                 mutate();
-                System.out.println(iter);
+                //System.out.println(iter);
                 iter+=ns;
 
                 if (iter>=songmemory.length){
@@ -355,6 +355,8 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
                     bb++;
 			//System.out.println(d+" "+x[i]+" "+y[i]);
 		}
+                //System.out.println("dissim = " + Math.sqrt(d/(0.0+numSylls)) + "novelty bias = " + Math.pow(d/(0.0+numSylls),nb));	
+ 
 		return (Math.pow(d/(0.0+numSylls),nb));	
 	}
 	
