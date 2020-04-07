@@ -11,13 +11,22 @@ package org.Whale;
  */
 
 import java.util.Arrays;
+import org.apache.commons.math3.analysis.ParametricUnivariateFunction;
+import org.apache.commons.math3.analysis.function.Logistic;
+import org.apache.commons.math3.fitting.SimpleCurveFitter;
+import org.apache.commons.math3.fitting.WeightedObservedPoint;
 
 public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
+        
+
 
 	WhalePopulation population;
 	WhaleParameters param;
+        WhaleIndividual[] inds;
+        WhaleIndividual individual;
 	double[] shareprofile;
 	public double ntypes;
+        int memorylength=100;
 	
 	//public double meanSylDiss, sylaveraget, sylsingletons, sylrares, sylintermediates, sylcommons, sylmaxfreq, sylh1, sylLD, sylshzero, sylshsing, sylshmult, sylshall, sylshmean, hdiff; 
 	
@@ -30,9 +39,14 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 	double[][] diss, dissSyl;
 	
 	double[]out;
-        
+        int[][][][] output;
+
         int[] ids;
         int[] syllab;
+        int[] indbuffer;
+        int[] membuffer;
+
+
 	
 	double dsim=0.04;
 	
@@ -40,25 +54,32 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 	
 	public WhaleMeasureStatistics(org.Whale.WhalePopulation population, WhaleParameters param) {
             this.population=population;
-            this.param=param;
+            this.param=param;     
+  //          this.individual=individual;
             typeEmpirical=true;
             dsim=param.typeThresh;
-            diss=population.calculateEmpDissimilarityMatrix(0);
-            ids=population.calculateEmpIDs();
-            dissSyl=population.calculateEmpSyllDissimilarityMatrix(0);
-            syllab=makeEmpSylLabel();
-            calculateStats();
+            //diss=population.calculateEmpDissimilarityMatrix(0);
+            //ids=population.calculateEmpIDs();
+            //dissSyl=population.calculateEmpSyllDissimilarityMatrix(0);
+            //syllab=makeEmpSylLabel();
+            //calculateStats();
+            calculateThresholdSpectrum(population.pop);
+            
         }
         
         public WhaleMeasureStatistics(WhalePopulation population, EmpData ed, WhaleParameters param) {
 		this.population=population;
 		this.param=param;
 		dsim=param.typeThresh;
+                memorylength=param.memorylength;
 		ids=population.calculateEmpIDs();
 		dissSyl=ed.empSylDiss;
 		syllab=ed.syllab;
 		diss=ed.empDiss;
-                calculateStats();
+                //calculateStats();
+
+                
+                
 	}
         
             
@@ -79,93 +100,56 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
             //out[50]=avdiff;
             //out[51]=singdiff;
 	}
-	
-	
+
+                
+        
+
+	public int[][][][] calculateThresholdSpectrum(WhaleIndividual[] pop){
+            
+            output= new int[pop.length][param.memorylength][][];
+            indbuffer= new int[param.memorylength*pop.length];
+            membuffer= new int[param.memorysize*pop.length];
+            
+            
+            for (int i=0; i<pop.length; i++){ //For each individual i in population length
+                System.out.println("Individual = " + i);
+                for (int a=0; a<param.memorylength; a++){ //memlength //for each song in total memory
+                        int k=0;                    
+                        int indexa=pop[i].getMemoryIndex(a); //get the index of song a
+         
+                            for (int j=0; j<pop.length; j++){ //for each other individual in the population
+                                if(i!=j){ //as long as it is not individual i itself
+                                for (int b=0; b<param.memorylength; b++){ 
+                                     int indexb=pop[j].getMemoryIndex(b);
+                                     if(pop[i].matchSongs(pop[i].getSongMemory(), pop[j].getSongMemory(), indexa, indexb)){
+                                     indbuffer[k]=j;
+                                     membuffer[k]=b;
+                                     k++;   
+                                     }                     
+                                }
+                             }
+                            }
+                            
+                                 output[i][a]=new int[k+1][2];
+                                 for (int j=0; j<k; j++){
+                                 output[i][a][j][0]=indbuffer[j];
+                                 output[i][a][j][1]=membuffer[j];  
+                                 
+                    }
+                                 
+                }
+            } 
+            return output;
+    }
         
         
         
-	/*
-	public int[] clusterData(double[][] x, double thresh) {
-		
-		UPGMA upgma=new UPGMA(x, 0, 0);
-		
-		//double[] y=calculateWithinClusterDistance(upgma, x);	
-		double[] y=upgma.getDists();
-		
-		int[][] cats=upgma.calculateClassificationMembers(y.length);
-		
-		int loc=0;
-		//for (int i=0; i<y.length; i++) {
-		//	System.out.println("CLCHK: "+y[i]);
-		//}
-		for (int i=0; i<y.length; i++) {
-			if (y[i]>thresh) {
-				loc=i;
-				i=y.length;
-			}
-		}
-		loc=y.length-loc;
-		loc=param.numTypes-1;
-		
-		clusterDepth=y[y.length-loc];
-		//System.out.println("CLUSTER DEPTH: "+y[y.length-loc]);
-		
-		//System.out.println("Categories: "+cats.length+" "+y.length+" "+loc);
-		if (loc>=cats.length) {loc=cats.length-1;}
-		int[] cluster=new int[cats.length];
-		
-		//cluster[0]=population.calculateEmpIDs();
-		
-		for (int i=0; i<cluster.length; i++) {
-			cluster[i]=cats[i][loc];
-			//System.out.println("CLUSTER: "+i+" "+cluster[0][i]+" "+cluster[1][i]);
-		}
-		
-		return cluster;
-		
-	}
-	*/
-	/*
-	public double[] calculateWithinClusterDistance(UPGMA upgma, double[][] matrix){
-		TreeDat[] td=upgma.getDat();
-		int n=td.length;				
-		double[] sil=new double[n];
-		//double silref=0;
-		int pc, pc2;
-		double avwithinscore;
-		double score=0;
-		for (int i=n-1; i>=0; i--){
-			avwithinscore=0;
-			for (int j=0; j<td[i].child.length; j++){
-				pc=td[i].child[j];
-				for (int k=0; k<td[i].child.length; k++){
-					pc2=td[i].child[k];
-					if (pc2>pc){
-						score=matrix[pc2][pc];
-					}
-					else{
-						score=matrix[pc][pc2];
-					}
-			
-					avwithinscore+=score;
-				}
-			
-			}
-			int t=td[i].child.length-1;
-			if (t==0){t=1;}
-			avwithinscore/=td[i].child.length*t*1.0;
-			//avwithinscore/=t*1.0;
-			sil[i]=avwithinscore;
-			//if (i==n-1){
-			//	silref=sil[i];
-			//}
-			//sil[i]/=silref;
-		}
-		return sil;
-	}	
-	*/
-	public int[][] calculateThresholdSpectrum(double[][] d, double t, int[] ids, double geogthresh){
-            int n=d.length;
+        
+        
+}
+        
+            
+            /*int n=d.length;
             int[][] out=new int[n][];
             int[] buffer=new int[n];
             //System.out.println("SONGS: "+n);
@@ -194,41 +178,46 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
                 out[i][a]=b;
             }
             return out;
-	}
+	}*/
         
-        public double[] calculateTransThresholdSpectrum(double[][] d, double t, int[] ids){
-            int n=d.length;
-            int n2=n-1;
-            double[]counts=new double[param.sylsPerSong]; 
-            double a=0;
-            for (int i=0; i<n2; i++) {
-                int s1=ids[i];
-                for (int j=0; j<n2; j++) {
-                    int s2=ids[j];
-                    if(d[i][j]<t){
-                        int k1=i+1;
-                        int k2=j+1;
-                        int s3=0;
-                        int s4=0;
-                        int count=0;
-                        while ((k1<n)&&(k2<n)&&((s3=ids[k1])==s1)&&((s4=ids[k2])==s2)&&(d[k1][k2]<t)){
-                            count++;
-                            k1++;
-                            k2++;
-                        }
-                        if (count>=counts.length){count=counts.length-1;}
-                        counts[count]++;
-                        a++;
-                    }
+ 
+ //       public int[][] calculateThresholdSpectrum(WhaleIndividual[] pop){
+      
+            
+            
+            
+            
+            /*
+            allsong= new int[allsonglength];
+            for (int i=0; i<ninds; i++){ //for all inds
+                for (int j=0; j<memorysize,j++){
+                    allsong[k]=songmemory[j];
+                    k++;                      
                 }
+            }  
+            
+            for (int i=0; i<ninds; i++){ //for each id
+                for (int j=0; j<memorylength,j++){ //each song in its memory
+                     for (int k=0; k<allsongnr,k++){ //compare it so all songs in allsonglength
+                         int a=k*ns;
+                         int b=0
+                         if(matchSongs(allsong, songmemory, a, j){
+                          System.arraycopy(allsong, a, tresholdsong, b, ns);  
+                          b++
+                         }
+                         
+                         
+                         int id=ninds[i];
+                         int songid=j;
+                         int 
+                     }
+                    
+                    
             }
-            for (int i=0; i<counts.length; i++){
-                counts[i]/=a;
-            }
-            return counts;
-	}
-        
-        public int[][] calculateThresholdSpectrum(double[][] d, double t){
+            }   
+            
+            */
+            /*
             int n=d.length;
             int[][] out=new int[n][];
             int[] buffer=new int[n];
@@ -361,6 +350,8 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 	
 	}
         
+}
+        
         
         
 	
@@ -455,7 +446,8 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 		//System.out.println("FREQSTATS: "+ntypes+" "+singletons+" "+intermediates+" "+commons+" "+maxfreq);
 	}
 	*/
-	public int[] calculateShareSpectrum(int[] f, int[]g, int h){
+        
+/*	public int[] calculateShareSpectrum(int[] f, int[]g, int h){
 		int[] shareSpectrum=new int[20];
 		
 		int[][]c=new int[h][h];
@@ -488,7 +480,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 		return shareSpectrum;
 	}
 	
-	public int[] calculateShareSpectrum2(int[]g, int h, double gt){
+//	public int[] calculateShareSpectrum2(int[]g, int h, double gt){
 		int[] shareSpectrum=new int[20];
 		
 		int[][]c=new int[h][h];
@@ -538,7 +530,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 		return Math.log(z);
 	}
 	
-	public double[] calculateFit(double alpha, double[] x){
+//	public double[] calculateFit(double alpha, double[] x){
 		double fmin=0;
 		for (int i=0; i<1000; i++){
 			fmin+=Math.pow(i+1, -1*alpha);
@@ -582,7 +574,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 		
 	}
 	
-	public int[] calculateFrequencies(int[] d) {
+//	public int[] calculateFrequencies(int[] d) {
 		int x=0;
 		for (int i=0; i<d.length; i++) {
 			if (d[i]>x) {x=d[i];}
@@ -595,7 +587,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 		}
 		return out;
 	}
-	
+	/*
 	public double[] calculateGeogStats(int[] ids, int n, double[][] diss, int[] repSize) {
 		
 		double[] jaccard=new double[geogThresh.length+1];
@@ -618,7 +610,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 				}
 			}
 		}
-                */
+               
                 for (int i=0; i<diss.length; i++){
                     boolean[] check=new boolean[n];
                     for (int j=0; j<i; j++){
@@ -688,8 +680,9 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
                 return out;
                 
 	}
-	
-	public int[] makeEmpSylLabel() {
+*/
+//	
+/*	public int[] makeEmpSylLabel() {
 		int n=dissSyl.length;
 		int[] label=new int[n];
 		int a=0;
@@ -705,7 +698,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 		return label;
 	}
 	
-	public double[] calculateSyllableSharing(int[][] x, int[] y, int[] songlengths) {
+	//public double[] calculateSyllableSharing(int[][] x, int[] y, int[] songlengths) {
 		
 		int nsong=songlengths.length;
                 //System.out.println("NSONG: "+nsong);
@@ -745,7 +738,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 		return out;
 	}
 	
-	public int[] calculateSongLengths(int[] label) {
+//	public int[] calculateSongLengths(int[] label) {
 		int n=label.length;
 		int lmax=0;
 		for (int i=0; i<n; i++) {
@@ -759,7 +752,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 		return out;
 	}
         
-        public void calculateTransitions(int[] label){
+   //     public void calculateTransitions(int[] label){
             int n=dissSyl.length;
             int[][] x=calculateThresholdSpectrum(dissSyl, dsim);
             int[] slengths=calculateSongLengths(label);
@@ -767,7 +760,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
         }
         
 
-	public double[] calculateSyllableStats(int[] label) {
+	//public double[] calculateSyllableStats(int[] label) {
 		
 		int n=dissSyl.length;
 		
@@ -795,7 +788,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 		}
 		//System.out.println(n+" "+meanSylDiss+" "+count);
 		meanSylDiss/=count;
-		*/
+		
 		//System.out.println(n+" "+meanSylDiss+" "+count);
 		
 		double[] ssh =calculateSyllableSharing(x, label, slengths);
@@ -875,7 +868,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
                 return out;
         }
 	
-	public void calculateSyllableLD(int[][] x, int[]y, double n) {
+//	public void calculateSyllableLD(int[][] x, int[]y, double n) {
 		
 		int a=x.length;
 		
@@ -917,5 +910,6 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 		}
 		//sylLD=overall/count;
 	}
-	
+//	
 }
+*/
