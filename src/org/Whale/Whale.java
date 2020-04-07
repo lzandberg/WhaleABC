@@ -8,12 +8,16 @@ public class Whale {
 	WhaleParameters param;
 	WhaleIndividual[] inds;
 	WhalePopulation population;
+        WhaleMeasureStatistics stats;
 	
 	public int[][]locs;
 	public int[] repSizes;
         public int[][] popSizes;
 	public int iter;
-	public double[] stats;
+        public int counter;
+        int maxlearn = 10; //total number of learning instances per year
+	public int[][][][] out;
+       
 	
 	public String fileLocation="/data/home/btw774/";
 	
@@ -45,6 +49,9 @@ public class Whale {
 		param.setPopulationSizes(z);
 		int [][] locs={{0,0}};
                 runSimulation();
+                WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, param);
+                out=ms.output;
+                
         }
 	
 	public Whale(String fileLocation, long seed, int[][] locs, int[] rep, int[][] popSizes, double[] p, double[] q){
@@ -52,6 +59,7 @@ public class Whale {
 		param=new WhaleParameters(p,q, seed);
 		param.setRepertoireSizes(rep);
                 param.setPopulationSizes(popSizes);
+                this.inds=inds;
 		this.locs=locs;
 		//this.p=p;
 		//ed=new EmpData(param);
@@ -59,8 +67,8 @@ public class Whale {
 		runSimulation();
 		//System.out.println("Measuring stats");
 		//MeasureStatistics ms=new MeasureStatistics(population, param, ed);
-		WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, param);
-		stats=ms.out;
+                //WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, param);
+                //stats.calculateThresholdSpectrum(inds);
 	}
         	
 	public Whale(String fileLocation, double[] p, double[] q, long seed) {
@@ -74,10 +82,10 @@ public class Whale {
                 param.setPopulationSizes(popSizes);
 		initiateSimulation();
 		WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, ed, param);
-		stats=ms.out;
-		for (int i=0; i<stats.length; i++) {System.out.println(measNames[i]+" "+stats[i]);}
+		//stats=ms.out;
+		//for (int i=0; i<stats.length; i++) {System.out.println(measNames[i]+" "+stats[i]);}
                 
-                System.out.println(ed.empDiss.length+" "+ed.empSylDiss.length);
+                //System.out.println(ed.empDiss.length+" "+ed.empSylDiss.length);
                 
 	}
         
@@ -94,6 +102,7 @@ public class Whale {
 		//System.out.println("Initiation took: "+(b-a));
 		//System.out.println("Simulation running for "+nYears);
 		int j=0;
+                counter=0;
 		/*
 		t1=0;
 		t2=0;
@@ -124,9 +133,14 @@ public class Whale {
 			j++;
                         */
                         
-			iterateSimulation();
+                        iterateSimulation(counter);
+                        counter++;
+                        if(counter>(maxlearn-1)){
+                            counter=0;
+                        }
 			
 		}
+               
                 
                 //population.printrec();
 		/*
@@ -193,14 +207,15 @@ public class Whale {
 		//System.out.println("Population initiated");
 	}
 	
-	public void iterateSimulation(){
+	public void iterateSimulation(int counter){
 
 		/* No mortality in the Whales..?
                 
 		for (int i=0; i<inds.length; i++){
 			inds[i].mortality();
 		}*/ 
-                
+                //System.out.println("counter = " + counter);
+                population.setSeason(counter);
 		//System.out.println("Song learning...");
 		for (int i=0; i<inds.length; i++){
 			inds[i].learnSongs();
