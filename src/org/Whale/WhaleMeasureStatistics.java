@@ -104,46 +104,39 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
                 
         
 
-	public int[][][][] calculateThresholdSpectrum(WhaleIndividual[] pop){
-            
-            output= new int[pop.length][param.memorylength][][];
-            indbuffer= new int[param.memorylength*pop.length];
-            membuffer= new int[param.memorysize*pop.length];
-            
-            
-            for (int i=0; i<pop.length; i++){ //For each individual i in population length
-                System.out.println("Individual = " + i);
-                for (int a=0; a<param.memorylength; a++){ //memlength //for each song in total memory
-                        int k=0;                    
-                        int indexa=pop[i].getMemoryIndex(a); //get the index of song a
-         
-                            for (int j=0; j<pop.length; j++){ //for each other individual in the population
-                                if(i!=j){ //as long as it is not individual i itself
-                                for (int b=0; b<param.memorylength; b++){ 
-                                     int indexb=pop[j].getMemoryIndex(b);
-                                     if(pop[i].matchSongs(pop[i].getSongMemory(), pop[j].getSongMemory(), indexa, indexb)){
-                                     indbuffer[k]=j;
-                                     membuffer[k]=b;
-                                     k++;   
-                                     }                     
-                                }
-                             }
-                            }
-                            
-                                 output[i][a]=new int[k+1][2];
-                                 for (int j=0; j<k; j++){
-                                 output[i][a][j][0]=indbuffer[j];
-                                 output[i][a][j][1]=membuffer[j];  
-                                 
-                    }
-                                 
-                }
-            } 
-            return output;
-    }
-        
-        
-        
+	public void calculateThresholdSpectrum(WhaleIndividual[] emppop){
+           int[][][] output1= new int[emppop.length][param.memorylength][];
+           int[][][] output2= new int[emppop.length][param.memorylength][];
+           indbuffer= new int[param.memorylength*emppop.length];
+           membuffer= new int[param.memorysize*emppop.length];
+           int ml=param.memorylength;
+           for (int i=0; i<emppop.length; i++){ //For each individual i in emppopulation length
+               System.out.println("Individual = " + i);
+               float[] mema=emppop[i].getSongMemory();
+               for (int a=0; a<ml; a++){ //memlength //for each song in total memory
+                  int k=0;                    
+                  int indexa=emppop[i].getMemoryIndex(a); //get the index of song a    
+                  for (int j=0; j<emppop.length; j++){ //for each other individual in the population
+                      float[] memb=emppop[j].getSongMemory();
+                      if(i!=j){ //as long as it is not individual i itself
+                          for (int b=0; b<ml; b++){ 
+                            int indexb=emppop[j].getMemoryIndex(b);
+                            if(emppop[i].matchSongs(mema, memb, indexa, indexb)){
+                              indbuffer[k]=j;
+                              membuffer[k]=b;
+                              k++;   
+                            }                     
+                          }
+                      }
+                  }
+                  output1[i][a]=new int[k];
+                  output2[i][a]=new int[k];
+                  System.arraycopy(indbuffer, 0, output1[i][a], 0, k);
+                  System.arraycopy(membuffer, 0, output2[i][a], 0, k); 
+                  //System.out.println(k);
+               }
+           } 
+   }       
         
         
 }
