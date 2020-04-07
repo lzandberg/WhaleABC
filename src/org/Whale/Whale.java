@@ -49,6 +49,7 @@ public class Whale {
 		param.setPopulationSizes(z);
 		int [][] locs={{0,0}};
                 runSimulation();
+                population.makeEmpPop();
                 WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, param);
                 out=ms.output;
                 
