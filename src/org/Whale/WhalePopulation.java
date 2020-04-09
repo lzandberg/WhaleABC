@@ -37,15 +37,21 @@ public class WhalePopulation extends org.ChaffinchABC.Population{
 	WhaleParameters param;
         int[] tutor;
         int ntutors=5;
-        double problearn=0.7;
-        
+        double problearn1=0.7; //probability of learning outside population in feeding grounds
+        double problearn2=0.0; //probability of learning outside population in breeding grounds
+        public boolean breeding; //season (for learning outside or within pop)
+        int counter;
+        int learnoutside=1; //# potential learning instances outside population
+        int sampleperpop=100;
+
         
         //int[][] rec=new int[100][100];
 	
 	public WhalePopulation(WhaleIndividual[] pop, WhaleParameters param, int[][] emplocs){
             	System.out.println("WhalePopulation");
 
-		this.pop=pop; //how to make sure pop=sum(subpopulations)??
+		this.pop=pop;
+                this.emppop=emppop;//how to make sure pop=sum(subpopulations)??
 		px=param.nx;
 		py=param.ny;
 		this.param=param;
@@ -77,8 +83,8 @@ public class WhalePopulation extends org.ChaffinchABC.Population{
          
         subpop=new int[ninds];
         int k=0;
-         for (int i=0; i<subpopsize.length; i++){ 
-             for(int j=0; j<subpopsize[i]; j++){
+         for (int i=0; i<subpopsize.length; i++){ //for every subpop
+             for(int j=0; j<subpopsize[i]; j++){ //go through that population and specify the subpop
                  subpop[k]=i;
                  k++;
              }
@@ -93,6 +99,25 @@ public class WhalePopulation extends org.ChaffinchABC.Population{
             subpopstarts[i]=start;      
         }
 }
+        
+        public void makeEmpPop(){
+        int n2=subpopsize.length*sampleperpop; //total number of IDs 10 populations*100
+        emppop=new WhaleIndividual[n2]; //New individual array with length n2
+        int k=0;
+        int a=0; 
+        for (int i=0; i<subpopsize.length; i++){ //for every subpop
+            for (int j=0; j<sampleperpop; j++){ //for every of the 100 samples of that subpop
+                emppop[k]=pop[a+j];
+                k++;
+        }
+       a+=subpopsize[i];
+   }
+}
+        
+
+
+
+
         
         public void makeDeadTerritories(){
             int[][][]r=param.removes;
@@ -221,19 +246,31 @@ public class WhalePopulation extends org.ChaffinchABC.Population{
 			//System.arraycopy(buf, 0, neighbours[i], 0, count);	
 		}
 	}
+        
+        public void setSeason(int counter){
+            breeding=true;
+            if(counter<learnoutside){
+                breeding=false;
+            }
+
+        }
 	
 	public WhaleIndividual [] getTutors(int p) {
-            //System.out.println("getTutors");
+
             int subpopp=subpop[p]; //which subpopulation is ID p from
             int poptut=subpopp;    //tutor population by default is own subpopulation 
+            double problearn;
             double randomprob=param.nextDouble();
-            //System.out.println("problearn = " + problearn + " & randomprob = " + randomprob);
-            
+            problearn=problearn1;
+            if(breeding){
+                problearn=problearn2;
+            }
+            //System.out.println("Breeding = " + breeding + " & problearn= " + problearn);
             if(randomprob>problearn){  //only learning from neighbouring population when...
             //System.out.println("learnFromOtherPop");
-             if (param.nextInt(2)==1){
+             if (param.nextInt(2)==1){ //learn from population on the left or learn from the right?
                    poptut=subpopp+1;  
-                   if (subpopp==subpopsize.length-1){
+                   if (subpopp==subpopsize.length-1){ 
                       poptut=0;
                    }
                }
@@ -383,6 +420,20 @@ public class WhalePopulation extends org.ChaffinchABC.Population{
 		return x;
 	*/
 	
+        public int getEmpPop(int a){
+                    int subpopsample=-1;
+                    int maxsubemppop=0;
+                    for(int j=0; j<subpop.length; j++){ //go through the subpopulation to find which subpopulation holds the individual with index a
+                        maxsubemppop+=sampleperpop;
+                        if(a<maxsubemppop){
+                            subpopsample=j;
+                            break;
+                        }
+                    }
+            //System.out.println("individual = " + a + " & subpop = " + subpopsample);
+            return subpopsample; //returns the number of the subpopulation
+
+        }
 	
 	public int[] calculateIDs() {
 		int n=0;
