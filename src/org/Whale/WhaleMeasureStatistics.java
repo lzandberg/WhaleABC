@@ -21,8 +21,10 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 
 
 	WhalePopulation population;
+        WhalePopulation emppop;
 	WhaleParameters param;
         WhaleIndividual[] inds;
+        Whale whale;
         WhaleIndividual individual;
 	double[] shareprofile;
 	public double ntypes;
@@ -40,11 +42,20 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 	
 	double[]out;
         int[][][][] output;
+      
 
         int[] ids;
         int[] syllab;
         int[] indbuffer;
         int[] membuffer;
+        int[][][] output1;
+        int[][][] output2;
+        int[][][] output3;
+        int[] subpopsize;
+        int[][][] sharedsongs;
+        double[][][] output4;
+
+        
 
 
 	
@@ -58,12 +69,16 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
   //          this.individual=individual;
             typeEmpirical=true;
             dsim=param.typeThresh;
+            this.subpopsize=population.subpopsize;
+            
             //diss=population.calculateEmpDissimilarityMatrix(0);
             //ids=population.calculateEmpIDs();
             //dissSyl=population.calculateEmpSyllDissimilarityMatrix(0);
             //syllab=makeEmpSylLabel();
             //calculateStats();
-            calculateThresholdSpectrum(population.pop);
+            calculateThresholdSpectrum(population.emppop);
+            calculateSongSharing();
+            calculateSongSharingAvg();
             
         }
         
@@ -104,24 +119,26 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
                 
         
 
-	public void calculateThresholdSpectrum(WhaleIndividual[] emppop){
-           int[][][] output1= new int[emppop.length][param.memorylength][];
-           int[][][] output2= new int[emppop.length][param.memorylength][];
-           indbuffer= new int[param.memorylength*emppop.length];
-           membuffer= new int[param.memorysize*emppop.length];
+	public void calculateThresholdSpectrum(WhaleIndividual[] pop){
+           output1= new int[pop.length][param.memorylength][];
+           output2= new int[pop.length][param.memorylength][];
+           indbuffer= new int[param.memorylength*pop.length];
+           membuffer= new int[param.memorysize*pop.length];
            int ml=param.memorylength;
-           for (int i=0; i<emppop.length; i++){ //For each individual i in emppopulation length
+           for (int i=0; i<pop.length; i++){ //For each individual i in population length
+               if(i%100==0){
                System.out.println("Individual = " + i);
-               float[] mema=emppop[i].getSongMemory();
+               }
+               float[] mema=pop[i].getSongMemory();
                for (int a=0; a<ml; a++){ //memlength //for each song in total memory
                   int k=0;                    
-                  int indexa=emppop[i].getMemoryIndex(a); //get the index of song a    
-                  for (int j=0; j<emppop.length; j++){ //for each other individual in the population
-                      float[] memb=emppop[j].getSongMemory();
+                  int indexa=pop[i].getMemoryIndex(a); //get the index of song a    
+                  for (int j=0; j<pop.length; j++){ //for each other individual in the population
+                      float[] memb=pop[j].getSongMemory();
                       if(i!=j){ //as long as it is not individual i itself
                           for (int b=0; b<ml; b++){ 
-                            int indexb=emppop[j].getMemoryIndex(b);
-                            if(emppop[i].matchSongs(mema, memb, indexa, indexb)){
+                            int indexb=pop[j].getMemoryIndex(b);
+                            if(pop[i].matchSongs(mema, memb, indexa, indexb)){
                               indbuffer[k]=j;
                               membuffer[k]=b;
                               k++;   
@@ -136,12 +153,81 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
                   //System.out.println(k);
                }
            } 
-   }       
-        
-        
+          
 }
+        public void calculateSongSharing(){
+        output3= new int[population.emppop.length][param.memorylength][param.memorylength];
+        for (int i=0; i<population.emppop.length; i++){ //for each individual!!
+          if(i%100==0){
+              System.out.println("calculateSongSharing ID = " + i);
+          }  
+          int a=population.getEmpPop(i); //get the population number
+          for (int j=0; j<param.memorylength; j++){ //for each timepoint
+            //int count=0;  
+            for (int k=0; k<output1[i][j].length; k++){ //go through songs of output1
+              int b=population.getEmpPop(output1[i][j][k]); //b is population number of each k (other ID)
+              if (a==b){             
+                output3[a][j][output2[i][j][k]]++;          //output3[a][j][]=x++
+                
+              }
+            }
+          }
+        }
+        for (int i=0; i<subpopsize.length; i++){            //for every population
+          double x=population.sampleperpop*population.sampleperpop; //x=samplesize pop i * samplesize pop i
+          output4 = new double[subpopsize.length][param.memorylength][param.memorylength];
+          for (int j=0; j<param.memorylength; j++){             //for every time point
+            for (int k=0; k<param.memorylength; k++){           //for every other time point 
+              output4[i][j][k]=output3[i][j][k]/x; 
+              //System.out.println("pop = "+i+" timepoint = "+j+ " shared song time= " + k + " songsharing " +  output4[i][j][k]); 
+              
+              
+            }
+          }
+        }
         
+        
+        }      
+        
+        public void calculateSongSharingAvg(){
+            double[] outputavg= new double[10];
+            for(int i=0; i<whale.maxlearn; i++){ //timepoint i in yearly cycle of length maxlearn
+                double sum=0;
+                int x=0;    
+                for(int j=0; j<population.subpopsize.length;j++){    //j=pop
+                    for(int k=0; k<memorylength;k++){ //timepoint a=k
+                        if(k%10==i){
+                            for(int l=0; l<memorylength;l++){ //timepoint b=l
+                                if(k==l){
+                                sum+=output4[j][k][l];
+                                x++;
+                                } 
+                            }
+                        } 
+                    }
+                }
+                outputavg[i]=sum/x;
+                System.out.println("Time = " + i + " & sharing avg = " + outputavg[i]);
+            }
             
+            
+        }
+ 
+        
+        
+}       
+        
+        
+   
+ 
+
+
+
+    
+    
+
+    
+
             /*int n=d.length;
             int[][] out=new int[n][];
             int[] buffer=new int[n];
