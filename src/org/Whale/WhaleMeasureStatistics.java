@@ -191,7 +191,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
         
         public void calculateSongSharingAvg(){
             double[] outputavg= new double[10];
-            for(int i=0; i<whale.maxlearn; i++){ //timepoint i in yearly cycle of length maxlearn
+            for(int i=0; i<10; i++){ //timepoint i in yearly cycle of length maxlearn
                 double sum=0;
                 int x=0;    
                 for(int j=0; j<population.subpopsize.length;j++){    //j=pop
@@ -212,7 +212,48 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
             
             
         }
- 
+        
+        public void calculatePopSongSharing(){
+        int[][][][] outputpop= new int[population.emppop.length][population.subpopsize.length][param.memorylength][param.memorylength];
+        for (int i=0; i<population.emppop.length; i++){ //for each individual!!
+          int a=population.getEmpPop(i); //get the population number
+          for (int j=0; j<param.memorylength; j++){ //for each timepoint
+            //int count=0;  
+            for (int l=0; l<3; l++){
+                if(l==0){
+                    a=a-1;
+                }
+                else if(l==1){
+                    a=a;
+            }
+                else if(l==1){
+                    a=a+1;
+            }
+                for (int k=0; k<output1[i][j].length; k++){ //go through songs of output1
+                int b=population.getEmpPop(output1[i][j][k]); //b is population number of each k (other ID)
+                if (a==b){             
+                output3[a][j][output2[i][j][k]]++;          //output3[a][j][]=x++
+                }
+              }
+            }
+          }
+        }
+        for (int i=0; i<subpopsize.length; i++){            //for every population
+          double x=population.sampleperpop*population.sampleperpop; //x=samplesize pop i * samplesize pop i
+          output4 = new double[subpopsize.length][param.memorylength][param.memorylength];
+          for (int j=0; j<param.memorylength; j++){             //for every time point
+            for (int k=0; k<param.memorylength; k++){           //for every other time point 
+              output4[i][j][k]=output3[i][j][k]/x; 
+              //System.out.println("pop = "+i+" timepoint = "+j+ " shared song time= " + k + " songsharing " +  output4[i][j][k]); 
+              
+              
+            }
+          }
+        }
+        
+        
+        }  
+        
         
         
 }       
