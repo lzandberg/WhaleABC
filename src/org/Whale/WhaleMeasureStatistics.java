@@ -18,13 +18,14 @@ import org.apache.commons.math3.fitting.WeightedObservedPoint;
 
 public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
         
-
+    
+    
 
 	WhalePopulation population;
         WhalePopulation emppop;
 	WhaleParameters param;
         WhaleIndividual[] inds;
-        Whale whale;
+        Whale wh;
         WhaleIndividual individual;
 	double[] shareprofile;
 	public double ntypes;
@@ -43,7 +44,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
 	double[]out;
         int[][][][] output;
       
-
+        int maxlearn=10;
         int[] ids;
         int[] syllab;
         int[] indbuffer;
@@ -70,6 +71,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
             typeEmpirical=true;
             dsim=param.typeThresh;
             this.subpopsize=population.subpopsize;
+
             
             //diss=population.calculateEmpDissimilarityMatrix(0);
             //ids=population.calculateEmpIDs();
@@ -178,7 +180,8 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
           output4 = new double[subpopsize.length][param.memorylength][param.memorylength];
           for (int j=0; j<param.memorylength; j++){             //for every time point
             for (int k=0; k<param.memorylength; k++){           //for every other time point 
-              output4[i][j][k]=output3[i][j][k]/x; 
+              System.out.println("pop = " + i + " t = " + j + "sharing = " + output3[i][j][k]);
+                output4[i][j][k]=output3[i][j][k]/x; 
               //System.out.println("pop = "+i+" timepoint = "+j+ " shared song time= " + k + " songsharing " +  output4[i][j][k]); 
               
               
@@ -191,7 +194,8 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
         
         public void calculateSongSharingAvg(){
             double[] outputavg= new double[10];
-            for(int i=0; i<10; i++){ //timepoint i in yearly cycle of length maxlearn
+
+            for(int i=0; i<maxlearn; i++){ //timepoint i in yearly cycle of length maxlearn
                 double sum=0;
                 int x=0;    
                 for(int j=0; j<population.subpopsize.length;j++){    //j=pop
@@ -213,6 +217,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
             
         }
         
+/* 
         public void calculatePopSongSharing(){
         int[][][][] outputpop= new int[population.emppop.length][population.subpopsize.length][param.memorylength][param.memorylength];
         for (int i=0; i<population.emppop.length; i++){ //for each individual!!
@@ -253,7 +258,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
         
         
         }  
-        
+*/        
         
         
 }       
