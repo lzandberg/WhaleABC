@@ -16,7 +16,9 @@ import java.text.DecimalFormat;
 import org.ChaffinchABC.ZigguratNormalizedGaussianSampler;
 
 public class WhaleParameters extends org.ChaffinchABC.Parameters implements Serializable {
-	
+
+    
+    
     private long DOUBLE_MASK = (1L << 53) - 1;
     private double NORM_53 = 1. / (1L << 53);
     private long state0, state1;
