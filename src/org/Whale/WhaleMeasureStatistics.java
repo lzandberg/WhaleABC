@@ -180,7 +180,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
           output4 = new double[subpopsize.length][param.memorylength][param.memorylength];
           for (int j=0; j<param.memorylength; j++){             //for every time point
             for (int k=0; k<param.memorylength; k++){           //for every other time point 
-              System.out.println("pop = " + i + " t = " + j + "sharing = " + output3[i][j][k]);
+              //System.out.println("pop = " + i + " t = " + j + "sharing = " + output3[i][j][k]);
                 output4[i][j][k]=output3[i][j][k]/x; 
               //System.out.println("pop = "+i+" timepoint = "+j+ " shared song time= " + k + " songsharing " +  output4[i][j][k]); 
               
