@@ -54,7 +54,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
         double[][][] output3;
         int[] subpopsize;
         int[][][] sharedsongs;
-        double[][][] output4;
+      //  double[][][] output4;
 
         
 
@@ -177,7 +177,7 @@ public class WhaleMeasureStatistics extends org.ChaffinchABC.MeasureStatistics {
         }
         for (int i=0; i<subpopsize.length; i++){            //for every population
           double x=population.sampleperpop*population.sampleperpop; //x=samplesize pop i * samplesize pop i
-          output4 = new double[subpopsize.length][param.memorylength][param.memorylength];
+          //output4 = new double[subpopsize.length][param.memorylength][param.memorylength];
           for (int j=0; j<param.memorylength; j++){             //for every time point
             for (int k=0; k<param.memorylength; k++){           //for every other time point 
               //System.out.println("pop = " + i + " t = " + j + "sharing = " + output3[i][j][k]);
