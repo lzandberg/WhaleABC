@@ -43,8 +43,8 @@ public class WhalePriors extends org.ChaffinchABC.Priors{
         
         
 	int[] priorType= new int[]{1, 1, 1, 1, 1};
-	double[] priorMax=new double[] {0.05, 1, 5, 40, 2.5};
-	double[] priorMin=new double[] {0.0001, 0.0001, 0.5, 0.5, 0.8};
+	double[] priorMax=new double[] {0.006, 0.0001, 5, 40, 2};
+	double[] priorMin=new double[] {0.004, 0.00001, 0.5, 0.5, 0.8};
         
         //double[] priorMin=new double[] {0.00723, 0.00527, 1.109, 3.510, 0.893};
         //double[] priorMax=new double[] {0.00724, 0.00528, 1.11, 3.511, 0.894};
