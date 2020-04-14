@@ -17,6 +17,7 @@ import org.apache.commons.math3.distribution.GammaDistribution;
 
 public class WhalePopulation extends org.ChaffinchABC.Population{
 
+    
 	WhaleIndividual[] pop, emppop, tutors;
 	WhaleIndividual[][] neighbours;
 	int ninds=0;
