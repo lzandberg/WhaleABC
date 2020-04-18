@@ -16,7 +16,9 @@ import java.text.DecimalFormat;
 import org.ChaffinchABC.ZigguratNormalizedGaussianSampler;
 
 public class WhaleParameters extends org.ChaffinchABC.Parameters implements Serializable {
-	
+
+    
+    
     private long DOUBLE_MASK = (1L << 53) - 1;
     private double NORM_53 = 1. / (1L << 53);
     private long state0, state1;
@@ -28,7 +30,7 @@ public class WhaleParameters extends org.ChaffinchABC.Parameters implements Seri
     
     
 	int modelType=1;
-	int nYears=50;
+	int nYears=10;
         int runinperiod=0;
 	//int nx=101;
 	//int ny=500;
@@ -49,8 +51,10 @@ public class WhaleParameters extends org.ChaffinchABC.Parameters implements Seri
 	//int maxRep=8; //Old chaffinch
         int maxRep=1; //Whale
 	
-	int sylsPerSong=6;
+	int sylsPerSong=4;
         int numdims=2;
+        int memorylength=100;
+        int memorysize=numdims*sylsPerSong*memorylength;
         
 	double mutationVar=0.08;
 	double recomRate=0.00;
@@ -65,7 +69,7 @@ public class WhaleParameters extends org.ChaffinchABC.Parameters implements Seri
 	float[] songBuffer;
 	int[] songFreq;
 	double[] cumFreq, freq;
-	double[] powerLookUp=new double[108];
+	double[] powerLookUp;
 	
 	
 	
@@ -86,6 +90,7 @@ public class WhaleParameters extends org.ChaffinchABC.Parameters implements Seri
 		popSize=nx*ny;
 		mortalityRate=q[4];
 		sylsPerSong=(int)q[5];
+                System.out.println(sylsPerSong + " = sylsPerSong parameters");
                 numdims=(int)q[6];
                 neighthresh=q[7];
 		typeThresh=q[8];
@@ -107,11 +112,13 @@ public class WhaleParameters extends org.ChaffinchABC.Parameters implements Seri
 	}
 	
 	public void setUp(long seed) {
-		
+		System.out.println("WhaleParameters.setup");
 		songBuffer=new float[maxRep*20*sylsPerSong*numdims];
 		songFreq=new int[maxRep*20];
 		cumFreq=new double[maxRep*20];
 		freq=new double[maxRep*20];
+                	powerLookUp=new double[108];
+                System.out.println(powerLookUp.length);
 		for (int i=0; i<powerLookUp.length; i++){
 			powerLookUp[i]=Math.pow(i, confBias);
 		}

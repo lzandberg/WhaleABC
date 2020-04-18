@@ -7,6 +7,7 @@ package org.Whale;
 
 import java.util.Arrays;
 
+
 /**
  *
  * @author lieszandberg
@@ -20,12 +21,13 @@ import java.util.Arrays;
 //This is the main class for objects representing individuals - including all song learning behaviour
 
 public class WhaleIndividual extends org.ChaffinchABC.Individual {
-
 	int modelType=0;
 	
 	float[] repertoire, newRepertoire, tempRep;
 
 	int repSize, newRepSize;
+        public int index;
+        public float[] songmemory;
 	
 	//as with repertoire, there is a current repertoire size, and a value for the newly constructed one
 	//after learning. These get merged at the end of each year.
@@ -50,14 +52,15 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 
 	double confBias=1.1;
         
-        	int numSylls=4;
-        int numdims=2;
-        int memorylength=100;
+        	int numSylls;
+        int numdims;
+        int memorylength; //100 songs
         int ns=0;
-        int memorysize=0;
-        int iter;
-        double nb = 1;
-        float songmemory[];            
+        int memorysize=0; //numsongs*numsyllables*numdimensions
+        int iter=0;
+
+        double novbias = 1;
+         
         double[] tutsongsim; 
         
 	
@@ -106,6 +109,9 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 		this.recombinationRate=param.recomRate;
 		this.matchThresh=param.typeThresh*param.typeThresh*param.sylsPerSong;
 		this.confBias=param.confBias;
+                this.memorylength=param.memorylength;
+                
+
 	
                 ns=numSylls*numdims;
                 memorysize=numSylls*numdims*memorylength;
@@ -134,6 +140,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 	public void setPopulation(WhalePopulation population) {
 		this.population=population;
 	}
+        
 	
 	
 	//decides whether individual dies that year or not.
@@ -257,10 +264,11 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
                 buildRepertoire3();
                 mutate();
                 //System.out.println(iter);
-                iter+=ns;
+                iter++;
 
-                if (iter>=songmemory.length){
+                if (iter>=memorylength){
                     iter=0;
+                    
                 }
                 
 	}
@@ -285,6 +293,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 
 		
 	public boolean matchSongs(float[] x, float[] y, int a, int b) {
+                //System.out.println("a = " + a + " & b = " + b + " & ns = " + ns);
 		double d=0;
 		int aa=a*ns;
                 int bb=b*ns;
@@ -355,9 +364,9 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
                     bb++;
 			//System.out.println(d+" "+x[i]+" "+y[i]);
 		}
-                //System.out.println("dissim = " + Math.sqrt(d/(0.0+numSylls)) + "novelty bias = " + Math.pow(d/(0.0+numSylls),nb));	
+                //System.out.println("dissim = " + Math.sqrt(d/(0.0+numSylls)) + "novelty bias = " + Math.pow(d/(0.0+numSylls),novbias));	
  
-		return (Math.pow(d/(0.0+numSylls),nb));	
+		return (Math.pow(d/(0.0+numSylls),novbias));	
 	}
 	
         
@@ -472,8 +481,24 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
 		
 	}
 	*/
+        
+        public int getMemoryIndex(int a){
+            //a=a;
+            //System.out.println("iter = " + iter + " & a = " + a);
+            index=iter-a;
+            if(index<0){
+                index=(memorylength)+index;
+            }
+            //System.out.println("index = " + index);
+            return index;
+        }
+                    
 	
-	
+	public float[] getSongMemory(){
+            return songmemory;
+        }
+        
+        
 	public void constructMemory2(WhaleIndividual[] tutors) {
 		
             songtypeCount=0;
@@ -704,6 +729,8 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
             
         }
         
+        
+        
 	
 	public void mutate(){
             int i=0;
@@ -714,7 +741,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
             for (i=0; i<newRepSize; i++){ //For each song in newRepertoire
 			
 		for (j=0; j<ns; j++) { //For each syllable-dimension
-				
+                    //System.out.println("MutationVar = " + mutationVariance);
                     newRepertoire[k]+=(float)(param.nextGaussian()*mutationVariance); //Change float k in the repertoire a little bit
                     k++;
 		}
@@ -737,6 +764,7 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
                             b++;
                         }
                         found=false;
+                        //System.out.println("mutate");
                         for (j=0; j<newRepSize; j++){
                             if (matchSongs(tempRep, newRepertoire, 0, j)){
                                 found=true;
@@ -753,10 +781,9 @@ public class WhaleIndividual extends org.ChaffinchABC.Individual {
                 }
             }
             //System.out.println("newmemory = " + Arrays.toString(songmemory));
-            System.arraycopy(newRepertoire, 0, songmemory, iter, ns); //copy mutated song to songmemory
-            //System.out.println("newmemory = " + Arrays.toString(songmemory));
+            System.arraycopy(newRepertoire, 0, songmemory, iter*ns, ns); //copy mutated song to songmemory
+            //System.out.println("iter = " + iter);
 	}
-	
 	
 
 }

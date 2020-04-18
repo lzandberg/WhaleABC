@@ -4,6 +4,7 @@ import java.util.Random;
 
 public class Whale {
 	
+  
 
 	WhaleParameters param;
 	WhaleIndividual[] inds;
@@ -15,7 +16,7 @@ public class Whale {
         public int[][] popSizes;
 	public int iter;
         public int counter;
-        int maxlearn = 10; //total number of learning instances per year
+        public int maxlearn = 10; //total number of learning instances per year
 	public int[][][][] out;
        
 	
@@ -81,7 +82,6 @@ public class Whale {
 		param=new WhaleParameters(p, q, seed);
 		param.setRepertoireSizes(repSizes);
                 param.setPopulationSizes(popSizes);
-		initiateSimulation();
 		WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, ed, param);
 		//stats=ms.out;
 		//for (int i=0; i<stats.length; i++) {System.out.println(measNames[i]+" "+stats[i]);}
@@ -99,7 +99,7 @@ public class Whale {
 		//System.out.println("Initiating...");
 		initiateSimulation();
 		//long b=System.currentTimeMillis();
-		int nYears=param.nYears;
+		int nYears=1000;//param.nYears;
 		//System.out.println("Initiation took: "+(b-a));
 		//System.out.println("Simulation running for "+nYears);
 		int j=0;
