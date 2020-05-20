@@ -44,7 +44,7 @@ public class WhaleParameters implements Serializable {
         
         int[] repSizes= {1,2,2,2,2,3,3,3,4,4,5};
         int maxRep=1; //Whale ?? MIGHT WANT TO CHANGE THIS?
-
+        int maxTheme=12;
         
 	double confBias=1.5;
         double novbias=1;

@@ -198,12 +198,12 @@ public class Whale {
 		population=new WhalePopulation(inds, param, locs);
 		
 		for (int i=0; i<param.popSize; i++){
-			inds[i].setPopulation(population);
-                        inds[i].initiate();
+			inds[i].setPopulation(population); 
+                        inds[i].initiate(); //initiate repertoire (newRep) per subpop, updateRepert, and initiate memory
 		}
 		//int[] x=population.calculateEmpIDs();
                 
-                for (int i=0; i<inds.length; i++){
+                for (int i=0; i<inds.length; i++){ 
                     inds[i].mortalityRate=1;
 		}
                 

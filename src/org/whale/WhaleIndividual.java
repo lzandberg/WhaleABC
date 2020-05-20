@@ -60,7 +60,7 @@ public class WhaleIndividual  {
         
         int numSylls;
         int numdims;
-        int memorylength, loglength; //100 songs
+        int memorylength, loglength; //memorylength = 50 songs, loglength = 100 songs
         int ns=0;
         int memorysize=0; //numsongs*numsyllables*numdimensions
         int logsize=0;
@@ -90,10 +90,12 @@ public class WhaleIndividual  {
 	float[] songBuffer;
         double[] tutsongsim;
 	int[] songFreq;
-        float[] songsim; 
+        int[] songLength;
+        float[] songsim, newsong; 
 	double[] cumFreq, freq;
 	double[] powerLookUp;
 	int repSizes[];
+        int maxSongLength;
 	
 	int songtypeCount=0;
 	
@@ -150,6 +152,7 @@ public class WhaleIndividual  {
             initiateRepertoire(population.subpop[territory]);
             updateRepertoire();
             initiateMemory();
+            initiateSongLength();
         }
 	
 	public void setPopulation(WhalePopulation population) {
@@ -180,9 +183,9 @@ public class WhaleIndividual  {
 	public void initiateRepertoire(int subpop){
             int k=0;
             //System.out.println("newRepSize= " + newRepSize );
-            for (int j=0; j<ns; j++) {
+            for (int j=0; j<ns; j++) { 
                 //newRepertoire[k]=param.nextFloat()+subpop;
-                newRepertoire[k]=subpop;
+                newRepertoire[k]=subpop; //newRepertoire[k]=ind.subpop number: each song is ns float numbers each float is the same, namely the subpopulation number?
                 k++;
             }
 	}
@@ -191,18 +194,34 @@ public class WhaleIndividual  {
         
         	public void initiateMemory(){
                     //int k=0;
-                    songmemory = new float[memorysize]; 
+                    songmemory = new float[memorysize];  //make float[] for memory, with length memorysize (#songs * #dims * #maxthemes)
                     for(int i=0; i<memorysize; i++){ //fill up memory with that one song
                         songmemory[i] = newRepertoire[i%ns];
                     }
                     songlog=new float[logsize];
-                    for(int i=0; i<logsize; i++){ //fill up memory with that one song
+                    for(int i=0; i<logsize; i++){ // also fill up songlog with that one song
                         songlog[i] = newRepertoire[i%ns];
                     }
 
 	}
+        
+        public void initiateSongLength(){
+            songLength = new int[memorylength];
+            for(int i=0; i<memorylength; i++){
+                songLength[i]=newRepertoire.length;
+            }
+        }
 
-	
+       /* 	public void initiateSongLength(){
+                    //int k=0;
+                    songmemory = new int[memorysize]; 
+                    for(int i=0; i<memorysize; i++){ //fill up memory with that one song
+                        songmemory[i] = newRepertoire[i%ns];
+                    }
+
+
+	}
+                */
 	
 	//at the end of each year, each replaced individual's song values are updated to their newly calculated ones
 	public void updateRepertoire(){
@@ -220,7 +239,9 @@ public class WhaleIndividual  {
                     repSize=newRepSize;
 		}
 	}
-
+        
+        
+        
         public void learnSongs(){
                    
                 
@@ -229,6 +250,7 @@ public class WhaleIndividual  {
                 mutate(); 
                 //}
                 System.arraycopy(newRepertoire, 0, songmemory, iter*ns, ns); 
+                songLength[iter]=newRepertoire.length;       
                 iter++;
 
                 if (iter>=memorylength){
@@ -242,6 +264,7 @@ public class WhaleIndividual  {
                     iterlog=0;
                 }
                 age++;
+               
                 
 	}
 	
@@ -286,6 +309,63 @@ public class WhaleIndividual  {
 		
 		
 	}
+        
+        public float[] insertTheme(float[] x){
+            float oldsong[]=x;
+            newsong= new float[oldsong.length+numdims];
+            float[] newtheme = new float[numdims];
+            int loc=0;
+            
+            loc=param.nextInt((oldsong.length/numdims)+1); 
+            loc=loc*numdims;    //random location in the oldsong array (including 0 and songlength+1)
+            
+            for(int i=0; i<newtheme.length; i++){ //make random new theme
+                newtheme[i]=param.nextFloat();
+            }
+         
+
+
+            for (int i=0; i<oldsong.length; i++) { //insert the newtheme[] into the oldsong[] at location loc
+                if (i<loc){ 
+                newsong[i] = oldsong[i]; 
+                }
+                else if (i==loc) {
+                    for(int j=0; j<newtheme.length; j++){
+                        newsong[i+j]=newtheme[j];
+                    }
+                    newsong[i+newtheme.length]=oldsong[i];
+                            }
+                else{
+                    newsong[i+newtheme.length]=oldsong[i];
+                } 
+
+            }
+            return newsong;
+        }
+        
+        public float[] dropTheme(float[] x){
+            float oldsong[]=x;
+            newsong= new float[oldsong.length+numdims];
+            
+            int loc=0;
+
+            loc=param.nextInt((oldsong.length/numdims)); 
+            loc=loc*numdims;    //random location in the oldsong array (including 0 and songlength+1)
+
+            for (int i=0; i<oldsong.length; i++) { //remove one theme from the oldsong[] at location loc
+                if (i<loc){ 
+                newsong[i] = oldsong[i]; 
+                }
+                else if (i==loc) {
+                    i+=numdims;
+                }
+                else{
+                    newsong[i-numdims]=oldsong[i];
+                } 
+
+            }
+            return newsong;
+        }
              
         public double compareSyllables(float[] x, int s1, int a, float[] y, int s2, int b){
             
@@ -381,6 +461,7 @@ public class WhaleIndividual  {
             return songmemory;
         }
         
+
         public float[] getSongLog(){
             return songlog;
         }
@@ -541,6 +622,8 @@ public class WhaleIndividual  {
                 }
 		//t5=System.nanoTime();
 	}
+        
+        
         
         public void checkMemory(){
             

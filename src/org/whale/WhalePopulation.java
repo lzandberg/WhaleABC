@@ -82,16 +82,18 @@ public class WhalePopulation {
 	}
         
         public void learnSongs(){
-            if (!breeding){updatePopSize();}
-            for (int i=0; i<subpopsize.length; i++){
-                for (int j=0; j<currentpopsizes[i]; j++){
+            if (!breeding){
+                updatePopSize();
+            }
+            for (int i=0; i<subpopsize.length; i++){        //For every subpop
+                for (int j=0; j<currentpopsizes[i]; j++){   //For every individual in the subpop
                     //System.out.println(j);
-                    pop[j+subpopstarts[i]].learnSongs();
+                    pop[j+subpopstarts[i]].learnSongs(); //Each individual in the currentpopsize goes through learnSongs();
                 }
             }
             for (int i=0; i<subpopsize.length; i++){
                 for (int j=0; j<currentpopsizes[i]; j++){
-                    pop[j+subpopstarts[i]].updateRepertoire();
+                    pop[j+subpopstarts[i]].updateRepertoire();//Each individual in the current popsize does updateRepertoire();
                 }
             }
         }
@@ -116,21 +118,21 @@ public class WhalePopulation {
          
             currentpopsizes=new int[subpopsize.length];
             
-            int ninds = 0;
+            int ninds = 0; //reset number of inds
             
-            for (int i=0; i<subpopsize.length; i++){  
-                ninds += subpopsize[i];
-                currentpopsizes[i]=minpops[i];
+            for (int i=0; i<subpopsize.length; i++){  //for each subpop
+                ninds += subpopsize[i]; //add the number of inds in that subpop to the total ninds
+                currentpopsizes[i]=minpops[i]; //currentpopsizes for that subpop=minimalpopsize for that subpop
                 //System.out.println(currentpopsizes[i]+" "+subpopsize[i]);
             }
         
          
-        subpop=new int[ninds];
+        subpop=new int[ninds]; //subpop is new array with for each individual the subpop it belongs to
         int k=0;
          for (int i=0; i<subpopsize.length; i++){ //for every subpop
              for(int j=0; j<subpopsize[i]; j++){ //go through that population and specify the subpop
-                 subpop[k]=i;
-                 pop[k].subpop=i;
+                 subpop[k]=i; //subpopulation in array subpop is specified
+                 pop[k].subpop=i; //in WhalePopulation array the subpop is specified
                  k++;
              }
         }
@@ -306,10 +308,19 @@ public class WhalePopulation {
             int poptut=subpopp;    //tutor population by default is own subpopulation 
             double problearn;
             problearn=problearn1;
+           
             if(breeding){
                 problearn=problearn2;
             }
             //System.out.println("Breeding = " + breeding + " & problearn= " + problearn);
+
+            
+            tutors= new WhaleIndividual [ntutors];
+            int[] tut;
+            tut= new int [ntutors];
+            
+        for(int i=0; i<ntutors;i++){
+            
             if(param.nextDouble()<problearn){  //only learning from neighbouring population when...
             //System.out.println("learnFromOtherPop");
              if (param.nextInt(2)==1){ //learn from population on the left or learn from the right?
@@ -328,11 +339,6 @@ public class WhalePopulation {
                }
             }
             
-            tutors= new WhaleIndividual [ntutors];
-            int[] tut;
-            tut= new int [ntutors];
-            
-        for(int i=0; i<ntutors;i++){
             boolean found=true;
             int a=0;
             while (found){
