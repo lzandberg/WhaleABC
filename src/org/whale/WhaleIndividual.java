@@ -53,8 +53,10 @@ public class WhaleIndividual  {
 	double mortalityRate=0.4;
 
 	double matchThresh=0.1;
+        double matchThreshTheme=0.1; //??
 	double mutationVariance=0.1;
 	double recombinationRate=0.001;
+        double missingtheme=0.01;
 
 	double confBias=1.1;
         
@@ -66,6 +68,8 @@ public class WhaleIndividual  {
         int logsize=0;
         int iter=0;
         int iterlog=0;
+        int maxtheme=10; //parameters?
+        double probadd=0.1; //parameters? probability of adding a completely new theme
 
         double novbias = 1;
          
@@ -98,6 +102,8 @@ public class WhaleIndividual  {
         int maxSongLength;
 	
 	int songtypeCount=0;
+        int songthemeCount=0;
+        int songtypefreq=0;
 	
 	long t1,t2,t3,t4,t5, t6;
 	
@@ -185,7 +191,7 @@ public class WhaleIndividual  {
             //System.out.println("newRepSize= " + newRepSize );
             for (int j=0; j<ns; j++) { 
                 //newRepertoire[k]=param.nextFloat()+subpop;
-                newRepertoire[k]=subpop; //newRepertoire[k]=ind.subpop number: each song is ns float numbers each float is the same, namely the subpopulation number?
+                newRepertoire[k]=subpop; //newRepertoire[k]=ind.subpop number: each song is ns float numbers each float is the same: the subpopulation number?
                 k++;
             }
 	}
@@ -249,6 +255,9 @@ public class WhaleIndividual  {
                 //if (songtypeCount>0){
                 mutate(); 
                 //}
+                
+              
+                
                 System.arraycopy(newRepertoire, 0, songmemory, iter*ns, ns); 
                 songLength[iter]=newRepertoire.length;       
                 iter++;
@@ -293,7 +302,14 @@ public class WhaleIndividual  {
 		int aa=a*ns;
                 int bb=b*ns;
 		for (int i=0; i<ns; i++) {
+                    if(aa!=-1000){
+                        if(bb==-1000){
+                            d+=missingtheme;
+                        }
+                        else{
                     d+=(x[aa]-y[bb])*(x[aa]-y[bb]);
+                        }
+                    }
                     aa++;
                     bb++;
                     if (d>matchThresh){
@@ -309,63 +325,33 @@ public class WhaleIndividual  {
 		
 		
 	}
-        
-        public float[] insertTheme(float[] x){
-            float oldsong[]=x;
-            newsong= new float[oldsong.length+numdims];
-            float[] newtheme = new float[numdims];
-            int loc=0;
-            
-            loc=param.nextInt((oldsong.length/numdims)+1); 
-            loc=loc*numdims;    //random location in the oldsong array (including 0 and songlength+1)
-            
-            for(int i=0; i<newtheme.length; i++){ //make random new theme
-                newtheme[i]=param.nextFloat();
-            }
-         
-
-
-            for (int i=0; i<oldsong.length; i++) { //insert the newtheme[] into the oldsong[] at location loc
-                if (i<loc){ 
-                newsong[i] = oldsong[i]; 
-                }
-                else if (i==loc) {
-                    for(int j=0; j<newtheme.length; j++){
-                        newsong[i+j]=newtheme[j];
+        	public boolean matchThemes(float[] x, float[] y, int a, int b) {
+                //System.out.println("a = " + a + " & b = " + b + " & ns = " + ns);
+		double d=0;
+		int aa=a*numdims;
+                int bb=b*numdims;
+		for (int i=0; i<ns; i++) {
+                    d+=(x[aa]-y[bb])*(x[aa]-y[bb]);
+                    aa++;
+                    bb++;
+                    if (d>matchThreshTheme){
+                        return false;
                     }
-                    newsong[i+newtheme.length]=oldsong[i];
-                            }
-                else{
-                    newsong[i+newtheme.length]=oldsong[i];
-                } 
-
-            }
-            return newsong;
-        }
+		}
+		
+		//if (d>matchThresh) {	
+		//	return false;
+		//}
+		//System.out.println(matchThresh+" "+d+" ");
+		return true;
+		
+		
+	}
         
-        public float[] dropTheme(float[] x){
-            float oldsong[]=x;
-            newsong= new float[oldsong.length+numdims];
-            
-            int loc=0;
 
-            loc=param.nextInt((oldsong.length/numdims)); 
-            loc=loc*numdims;    //random location in the oldsong array (including 0 and songlength+1)
 
-            for (int i=0; i<oldsong.length; i++) { //remove one theme from the oldsong[] at location loc
-                if (i<loc){ 
-                newsong[i] = oldsong[i]; 
-                }
-                else if (i==loc) {
-                    i+=numdims;
-                }
-                else{
-                    newsong[i-numdims]=oldsong[i];
-                } 
+        
 
-            }
-            return newsong;
-        }
              
         public double compareSyllables(float[] x, int s1, int a, float[] y, int s2, int b){
             
@@ -388,11 +374,19 @@ public class WhaleIndividual  {
                 int bb=b*ns;
                 
 		for (int i=0; i<ns; i++) {
+                    if(aa!=-1000){
+                        if(bb==-1000){
+                            d+=missingtheme;
+                        }
+                        else{
                     d+=(x[aa]-y[bb])*(x[aa]-y[bb]);
+                        }
+                    }
                     aa++;
                     bb++;
 			//System.out.println(d+" "+x[i]+" "+y[i]);
 		}
+                
 		return (Math.sqrt(d/(0.0+numSylls)));	
 	}
 	
@@ -411,7 +405,14 @@ public class WhaleIndividual  {
                 int bb=b*ns;
                 
 		for (int i=0; i<ns; i++) {
+                    if(aa!=-1000){
+                        if(bb==-1000){
+                            d+=missingtheme;
+                        }
+                        else{
                     d+=(x[aa]-y[bb])*(x[aa]-y[bb]);
+                        }
+                    }
                     aa++;
                     bb++;
 			//System.out.println(d+" "+x[i]+" "+y[i]);
@@ -467,6 +468,52 @@ public class WhaleIndividual  {
         }
         
    
+       public void constructMemory4(WhaleIndividual[] tutors){
+       	
+            //System.out.println("constructMemory3"); 
+            songtypeCount=0;
+            //boolean found;
+            double mindist;
+            
+            
+            int r; //repertoire size of each given tutor
+            int tl=tutors.length; // number of tutors
+            //tutsongsim = new double[tl] ;
+                       //list with for each tutor the minimal song similarity comparing its (currently the tutors only) song 
+                       //with all songs in the individuals song memory
+                       // **Still need to figure out a way how to do this when the song rep size tutor>1**
+            for (int i=0; i<tl; i++) { //for each tutor               
+                r=tutors[i].repSize; //determine repertoire size (r) for the tutor        
+                double x;
+           
+                for (int j = 0; j < r; j++) { //for each song in a tutors repertoire 
+                    mindist=Double.MAX_VALUE;
+                    
+                    for (int k=0; k<memorylength; k++) {  
+                         x=compareSongsPow(tutors[i].repertoire, songmemory, j, k); 
+                        if (x<mindist){
+                            mindist=x;
+                        } 
+                    }
+                    if (mindist>matchThresh){
+                        tutsongsim[i]=mindist;   //add it to the tutor song similarity array
+                        //Change ns
+                        System.arraycopy(tutors[i].repertoire, 0, songBuffer, songtypeCount*ns, ns); //add it to the songbuffer
+                  //System.out.println("copied tutorsong to songBuffer");
+                        songtypeCount++;
+                    }
+                }      
+            }
+            if (songtypeCount>0){
+                makeCumDistr();
+            }
+            
+            // New method to count songtypes
+
+            
+            
+       }
+        
 	public void constructMemory3(WhaleIndividual[] tutors) { // constructs memory of tutors songs of which one song will eventually be picked
             //System.out.println("constructMemory3"); 
             songtypeCount=0;
@@ -480,31 +527,22 @@ public class WhaleIndividual  {
                        //list with for each tutor the minimal song similarity comparing its (currently the tutors only) song 
                        //with all songs in the individuals song memory
                        // **Still need to figure out a way how to do this when the song rep size tutor>1**
-            for (int i=0; i<tl; i++) { //for each tutor
-               
-                r=tutors[i].repSize; //determine repertoire size (r) for the tutor
-                
-                
+            for (int i=0; i<tl; i++) { //for each tutor               
+                r=tutors[i].repSize; //determine repertoire size (r) for the tutor        
                 double x;
-
-                
-                //double[] sc = new double[memorylength]; // make an array for the comparison of the tutors song with all of songMemory
+           
                 for (int j = 0; j < r; j++) { //for each song in a tutors repertoire 
                     mindist=Double.MAX_VALUE;
+                    
                     for (int k=0; k<memorylength; k++) {  
                          x=compareSongsPow(tutors[i].repertoire, songmemory, j, k); 
-                
                         if (x<mindist){
                             mindist=x;
-
                         } 
                     }
                     if (mindist>matchThresh){
-                  
-                 // if (minValue>matchThresh){
-                  //System.out.println("tutor song similarity = " + mindist);
                         tutsongsim[i]=mindist;   //add it to the tutor song similarity array
- 
+                        //Change ns
                         System.arraycopy(tutors[i].repertoire, 0, songBuffer, songtypeCount*ns, ns); //add it to the songbuffer
                   //System.out.println("copied tutorsong to songBuffer");
                         songtypeCount++;
@@ -514,6 +552,10 @@ public class WhaleIndividual  {
             if (songtypeCount>0){
                 makeCumDistr();
             }
+            
+            // New method to count songtypes
+
+            
         }
         
         
@@ -607,7 +649,8 @@ public class WhaleIndividual  {
 			
 		}
 	}
-	
+            
+        
    
         public void buildRepertoire3() {
                 //System.out.println("buildRepertoire3");
@@ -642,26 +685,126 @@ public class WhaleIndividual  {
             
         }
         
+        public float[] dropTheme(){
+
+                //int[] themefreq= new int[10]; //new integer for all
+                
+                for (int i=0; i < maxtheme; i++) { //for each theme in a newRepertoire  
+                        int k=0;
+                        for (int j=0; j<(songBuffer.length/numdims); j++) {  //go through each theme in the songbuffer (not all tutors repertoires...)
+                            
+                            if(matchThemes(newRepertoire, songBuffer, i, j)){ 
+                            k++;
+                            }
+                        }
+                    double dropprob=(1/(1+ Math.pow(0.5,(k-1)))); //probability of learning a theme
+                    if (param.nextDouble()>dropprob){ //
+                        for(int l=0; l<numdims;l++){
+                            newRepertoire[(i*numdims)+l]=-1000; //drop that theme (all dimensions revert to -1000)
+                        }
+                    }
+                    
+                }
+                return newRepertoire;
+        }
+            
+        
+        
+        public float[] dropTheme2(float[] x){
+            float oldsong[]=x;
+            
+            int loc=0;
+
+            loc=param.nextInt((oldsong.length/numdims)); 
+            loc=loc*numdims;    //random location in the oldsong array (including 0 and songlength+1)
+
+            for (int i=0; i<oldsong.length; i++) { //remove one theme from the oldsong[] at location loc
+                if (i<loc){ 
+                newsong[i] = oldsong[i]; 
+                }
+                else if (i==loc) {
+                    i+=numdims;
+                }
+                else{
+                    newsong[i-numdims]=oldsong[i];
+                } 
+
+            }
+            return newsong;
+        }
+        
+        
+                
+        public float[] addTheme(){
+                
+                for(int i=0; i<maxtheme; i++){ //for each theme in new repertoire
+                    if(newRepertoire[i*numdims]==-1000){
+                        if(param.nextDouble()<probadd){
+                            for(int j=0; j<numdims;j++){
+                            newRepertoire[i*numdims+j]=param.nextFloat();
+                            }
+                        }
+                    }
+                
+                }
+                return newRepertoire;
+        }
+           
+        
+        
+        public float[] addTheme2(float[] x){
+            float oldsong[]=x;
+            newsong= new float[oldsong.length+numdims];
+            float[] newtheme = new float[numdims];
+            int loc=0;
+            
+            loc=param.nextInt((oldsong.length/numdims)+1); 
+            loc=loc*numdims;    //random location in the oldsong array (including 0 and songlength+1)
+            
+            for(int i=0; i<newtheme.length; i++){ //make random new theme
+                newtheme[i]=param.nextFloat(); //check if we want this 0-10
+
+            }
+
+            for (int i=0; i<oldsong.length; i++) { //insert the newtheme[] into the oldsong[] at location loc
+                if (i<loc){ 
+                newsong[i] = oldsong[i]; 
+                }
+                else if (i==loc) {
+                    for(int j=0; j<newtheme.length; j++){
+                        newsong[i+j]=newtheme[j];
+                    }
+                    newsong[i+newtheme.length]=oldsong[i];
+                            }
+                else{
+                    newsong[i+newtheme.length]=oldsong[i];
+                } 
+
+            }
+            return newsong;
+        }
         
         
 	
 	public void mutate(){
-            int i=0;
-            int j=0; 
-            float m=0;
+            //float m=0;
             
-            int k=0;
-            for (i=0; i<newRepSize; i++){ //For each song in newRepertoire
-			
-		for (j=0; j<ns; j++) { //For each syllable-dimension
+            //int k=0;
+            //for (int i=0; i<newRepSize; i++){ //For each song in newRepertoire
+		dropTheme();
+                addTheme();
+                
+		for (int j=0; j<newRepertoire.length; j++) { //For each syllable-dimension
+                    if(newRepertoire[j]!=-1000){
                     //System.out.println("MutationVar = " + mutationVariance+" "+newRepertoire[k]);
-                    newRepertoire[k]+=(float)(param.nextGaussian()*mutationVariance); //Change float k in the repertoire a little bit
-                    k++;
-		}
-            }
-            
-            
+                    newRepertoire[j]+=(float)(param.nextGaussian()*mutationVariance); //Change float k in the repertoire a little bit
+                    //k++;
+                    }
+                }
         }
+            
+            
+        
         
         
         public void recombine(){
