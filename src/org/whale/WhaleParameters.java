@@ -13,6 +13,7 @@ package org.whale;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.Random;
 //import org.whale.ZigguratNormalizedGaussianSampler;
 
 public class WhaleParameters implements Serializable {
@@ -52,7 +53,7 @@ public class WhaleParameters implements Serializable {
         public int[] minpops, kpops;
         double popgrowth=0.05;
 	public int popSize;
-	int sylsPerSong=8;
+	int sylsPerSong=10;
         int numdims=2;
         int memorylength=50;
         int memorysize=numdims*sylsPerSong*memorylength;
@@ -215,7 +216,12 @@ public class WhaleParameters implements Serializable {
                     public float nextFloat(){
                         return (float)(nextDouble());
                     }
+                    
+                    public float nextFloat(float min, float max) {
+                    Random rand = new Random();
+                    return rand.nextFloat() * (max - min) + min;
 
+                    }
 
 		    /**
 		     * Sets the seed of this generator using one long, running that through LightRNG's algorithm twice to get the state.

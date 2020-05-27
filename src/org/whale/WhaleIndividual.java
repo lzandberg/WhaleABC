@@ -10,6 +10,7 @@ package org.whale;
  * @author lieszandberg
  */
 import java.util.Arrays;
+import java.util.Random;
 
 
 /**
@@ -53,7 +54,7 @@ public class WhaleIndividual  {
 	double mortalityRate=0.4;
 
 	double matchThresh=0.1;
-        double matchThreshTheme=0.1; //??
+        double matchThreshTheme=0.01; //??
 	double mutationVariance=0.1;
 	double recombinationRate=0.001;
         double missingtheme=0.01;
@@ -104,6 +105,8 @@ public class WhaleIndividual  {
 	int songtypeCount=0;
         int songthemeCount=0;
         int songtypefreq=0;
+        float min=0;
+        float max=10;
 	
 	long t1,t2,t3,t4,t5, t6;
 	
@@ -330,7 +333,7 @@ public class WhaleIndividual  {
 		double d=0;
 		int aa=a*numdims;
                 int bb=b*numdims;
-		for (int i=0; i<ns; i++) {
+		for (int i=0; i<numdims; i++) {
                     d+=(x[aa]-y[bb])*(x[aa]-y[bb]);
                     aa++;
                     bb++;
@@ -523,6 +526,7 @@ public class WhaleIndividual  {
             
             int r; //repertoire size of each given tutor
             int tl=tutors.length; // number of tutors
+            
             //tutsongsim = new double[tl] ;
                        //list with for each tutor the minimal song similarity comparing its (currently the tutors only) song 
                        //with all songs in the individuals song memory
@@ -610,6 +614,7 @@ public class WhaleIndividual  {
 	}
 	
 	public void pickSongs2(){
+            //System.out.println("PickSongs2");
 		int i,j;
 		double v;
 		int t=0;
@@ -648,6 +653,8 @@ public class WhaleIndividual  {
 			}
 			
 		}
+                dropTheme();
+                addTheme();
 	}
             
         
@@ -686,10 +693,10 @@ public class WhaleIndividual  {
         }
         
         public float[] dropTheme(){
-
+               
                 //int[] themefreq= new int[10]; //new integer for all
                 
-                for (int i=0; i < maxtheme; i++) { //for each theme in a newRepertoire  
+                for (int i=0; i < numSylls; i++) { //for each theme in a newRepertoire  
                         int k=0;
                         for (int j=0; j<(songBuffer.length/numdims); j++) {  //go through each theme in the songbuffer (not all tutors repertoires...)
                             
@@ -697,8 +704,10 @@ public class WhaleIndividual  {
                             k++;
                             }
                         }
-                    double dropprob=(1/(1+ Math.pow(0.5,(k-1)))); //probability of learning a theme
-                    if (param.nextDouble()>dropprob){ //
+                    double dropprob=(1/(1+ Math.pow(0.5,(k+0.5)))); //probability of learning a theme
+                    double chance = param.nextDouble();
+                    if (chance>dropprob){ //
+                        //System.out.println("dropTheme: k= " + k + " dropprob= " + dropprob + " chance= " + chance)  ;
                         for(int l=0; l<numdims;l++){
                             newRepertoire[(i*numdims)+l]=-1000; //drop that theme (all dimensions revert to -1000)
                         }
@@ -736,12 +745,15 @@ public class WhaleIndividual  {
         
                 
         public float[] addTheme(){
-                
-                for(int i=0; i<maxtheme; i++){ //for each theme in new repertoire
+               
+                for(int i=0; i<numSylls; i++){ //for each theme in new repertoire
+                    
                     if(newRepertoire[i*numdims]==-1000){
                         if(param.nextDouble()<probadd){
+                            //System.out.println("addTheme");
                             for(int j=0; j<numdims;j++){
-                            newRepertoire[i*numdims+j]=param.nextFloat();
+                            newRepertoire[i*numdims+j]=param.nextFloat(min, max); 
+                            //System.out.println("New theme is [" + j + "] " + newRepertoire[i*numdims+j]);
                             }
                         }
                     }
@@ -791,8 +803,9 @@ public class WhaleIndividual  {
             
             //int k=0;
             //for (int i=0; i<newRepSize; i++){ //For each song in newRepertoire
-		dropTheme();
-                addTheme();
+            
+
+
                 
 		for (int j=0; j<newRepertoire.length; j++) { //For each syllable-dimension
                     if(newRepertoire[j]!=-1000){
@@ -801,6 +814,8 @@ public class WhaleIndividual  {
                     //k++;
                     }
                 }
+
+                
         }
             
             

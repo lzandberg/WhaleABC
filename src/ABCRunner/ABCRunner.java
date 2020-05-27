@@ -78,7 +78,7 @@ public class ABCRunner {
 		System.out.println("HERE WE ARE! "+npc);
 		//numReps=npc*np;
                 
-                npc=50;
+                npc=1; //50
                 numpops=fileLocation.length;
                 
                 //ChaffinchABC ct=new ChaffinchABC();
@@ -123,6 +123,7 @@ public class ABCRunner {
         
         
         public ABCRunner(int a){
+            System.out.println("ABCRUNNER");
             np=ncores;
             npc=50;
             iterateRound(0);
@@ -202,7 +203,7 @@ public class ABCRunner {
 	
 	
 	public void iterateRound(){
-		
+
 		iterateRound(currentRound);
 	
 		collateResults();
@@ -232,7 +233,7 @@ public class ABCRunner {
 	
 	
 	public void iterateRound(int round) {
-            
+            System.out.println("IterateRound");
             int numpassed=0;
             
             trl=new LinkedList<threadRunner[]>();
