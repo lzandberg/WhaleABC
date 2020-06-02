@@ -53,11 +53,11 @@ public class WhaleIndividual  {
         boolean isDeadTerritory=false;
 	double mortalityRate=0.4;
 
-	double matchThresh=0.1;
-        double matchThreshTheme=0.01; //??
+	double matchThresh;
+        double matchThreshTheme; 
 	double mutationVariance=0.1;
 	double recombinationRate=0.001;
-        double missingtheme=0.01;
+        double missingtheme=0.01; //??
 
 	double confBias=1.1;
         
@@ -330,14 +330,15 @@ public class WhaleIndividual  {
 	}
         	public boolean matchThemes(float[] x, float[] y, int a, int b) {
                 //System.out.println("a = " + a + " & b = " + b + " & ns = " + ns);
-		double d=0;
+		
+                double d=0;
 		int aa=a*numdims;
                 int bb=b*numdims;
 		for (int i=0; i<numdims; i++) {
                     d+=(x[aa]-y[bb])*(x[aa]-y[bb]);
                     aa++;
                     bb++;
-                    if (d>matchThreshTheme){
+                    if (d>(matchThreshTheme/numSylls)){
                         return false;
                     }
 		}
@@ -693,18 +694,26 @@ public class WhaleIndividual  {
         }
         
         public float[] dropTheme(){
-               
-                //int[] themefreq= new int[10]; //new integer for all
-                
-                for (int i=0; i < numSylls; i++) { //for each theme in a newRepertoire  
+            int m=0;
+      
+            for (int i=0; i < numSylls; i++) { //for each theme in a newRepertoire  
+                            if(newRepertoire[i*numdims]!=-1000){ 
+                            m++;
+                            }
+                        }
+            
+            
+            for (int i=0; i < numSylls; i++) { //for each theme in a newRepertoire  
                         int k=0;
+
                         for (int j=0; j<(songBuffer.length/numdims); j++) {  //go through each theme in the songbuffer (not all tutors repertoires...)
                             
                             if(matchThemes(newRepertoire, songBuffer, i, j)){ 
                             k++;
                             }
                         }
-                    double dropprob=(1/(1+ Math.pow(0.5,(k+0.5)))); //probability of learning a theme
+                    double dropprob=(1/(1+ Math.pow(0.5,(k-1+(5-(0.5*m)))))); //probability of learning a theme - 
+                    // dependent on the frequency of each theme (k) and the number of themes in the tutor song //??
                     double chance = param.nextDouble();
                     if (chance>dropprob){ //
                         //System.out.println("dropTheme: k= " + k + " dropprob= " + dropprob + " chance= " + chance)  ;
@@ -714,6 +723,7 @@ public class WhaleIndividual  {
                     }
                     
                 }
+            
                 return newRepertoire;
         }
             

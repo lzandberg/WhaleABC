@@ -25,7 +25,7 @@ public class ABCRunner {
         WhalePriors priors=new WhalePriors();
 	
 	//int numReps=5000;
-	int nsamps=1000;
+	int nsamps=100; //1000
         
         //double[] thresholds={15, 11, 10, 9, 8, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2};
         
@@ -48,15 +48,16 @@ public class ABCRunner {
         //public String[] fileLocation={"/home/rflachlan/Dropbox/ChaffTenerife/"};
         //public String[] fileLocation={"/home/rflachlan/Dropbox/ChaffTentsmuir/"};
         //public String[] fileLocation={"/home/rflachlan/Dropbox/ChaffGranCan/"};
-        public String[] fileLocation={"/home/rflachlan/Dropbox/ChaffBlue/"};
-        
-	int ncores=1;
+        //public String[] fileLocation={"/home/rflachlan/Dropbox/ChaffBlue/"};
+        public String[] fileLocation={"/Users/lieszandberg/STACK/PostDoc QMUL/Phase III - Comparative study/Whales/Results"};
+	
+        int ncores=1;
 	int np=0;
 	int npc=0;
 	
 	LinkedList<threadRunner[]> trl=new LinkedList<threadRunner[]>();
 	
-	int currentRound=10;
+	int currentRound=1; //10
 	
 	int nRounds=thresholds.length;
 	
@@ -125,7 +126,7 @@ public class ABCRunner {
         public ABCRunner(int a){
             System.out.println("ABCRUNNER");
             np=ncores;
-            npc=50;
+            npc=1; //50
             iterateRound(0);
         }
         

@@ -60,7 +60,7 @@ public class WhaleMeasureStatistics {
             typeEmpirical=true;
             dsim=param.typeThresh;
             this.subpopsize=population.subpopsize;
-
+            System.out.println("WhaleMeasureStatistics");
             
             //diss=population.calculateEmpDissimilarityMatrix(0);
             //ids=population.calculateEmpIDs();
