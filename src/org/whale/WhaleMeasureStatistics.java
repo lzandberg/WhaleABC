@@ -114,7 +114,13 @@ public class WhaleMeasureStatistics {
             output4=null; 
             output6=null;
             output7=null;
-            
+            output8=null;
+            buffer=null;
+            songfreq=null;
+            themefreq=null; //frequency of each theme type
+            themetot=null; //total number of themes
+            themepsong=null; //themes per song 
+            themestats=null; //summary stats for themes
                     
             
         }
@@ -326,86 +332,7 @@ public class WhaleMeasureStatistics {
     }
 
     
-    public void calculateThemeStats(){
-         for(int pop=0; pop<subpopsize.length;pop++){
-            for(int t=0; t<memorylength;t++){           
-                for(int i=0; i<sampleperpop*memorylength*numSylls; i++){
-                    if(themefreq[pop][t][i]==0){
-                        break;
-                    }
-                    else{
-                    themestats[pop][t][5]++;
-                    }
-                }
-            }
-         }
-                
-          for(int pop=0; pop<subpopsize.length;pop++){
-            for(int t=0; t<memorylength;t++){    
-                double c = themestats[pop][t][5]*0.02;   
-                for(int i=0; i<sampleperpop*memorylength*numSylls; i++){    
-                    if(themefreq[pop][t][i]==0){
-                        break;
-                    }
-                    else{
-                        if(themefreq[pop][t][i]==1){
-                            themestats[pop][t][1]++; //number of singletons
-                        }
-                        if(themefreq[pop][t][i]<4){
-                            themestats[pop][t][2]++; //number of rare themes
-                        }
-                        if(themefreq[pop][t][i]>1&&themefreq[pop][t][i]<c){ 
-                            themestats[pop][t][3]++;    //number of intermediate themes
-                        }
-                        if(themefreq[pop][t][i]>c){ 
-                            themestats[pop][t][4]++;    //numbers of common themes
-                        }
-                        if(themefreq[pop][t][i]>themestats[pop][t][6]){
-                            themestats[pop][t][6]=themefreq[pop][t][i]; //number of IDs singing the most common theme
-                        }  
-                        themestats[pop][t][7]=+(themefreq[pop][t][i]/themetot[pop][t])*(Math.log(themefreq[pop][t][i]/themetot[pop][t]) / Math.log(2)); //H index
-                        themestats[pop][t][8]=+Math.log(2*(themefreq[pop][t][i]/themetot[pop][t]));
-                    }
-                   
-                }
-                // convert to proportion of all themes in subpop pop at time t;
-                themestats[pop][t][1]/=themestats[pop][t][5];
-                themestats[pop][t][2]/=themestats[pop][t][5];
-                themestats[pop][t][3]/=themestats[pop][t][5];
-                themestats[pop][t][4]/=themestats[pop][t][5];
-                themestats[pop][t][8]=1+themetot[pop][t]*(Math.pow(themestats[pop][t][8],-1)); //Alpha P
-                
-                c=0;
-               
-                for(int i=0; i<sampleperpop; i++){
-                    themestats[pop][t][9]+=themepsong[pop][t][i];
-                    if(themefreq[pop][t][i]==2){
-                            themestats[pop][t][10]++; //songs with 2 themes (minimal)
-                    }
-                    if(themefreq[pop][t][i]==numSylls){
-                            themestats[pop][t][11]++; //songs with max themes
-                    }
-                    if(themefreq[pop][t][i]==Math.round(0.5*numSylls)+1){
-                            themestats[pop][t][12]++; //songs with intermediate themes
-                    }
-                    
-                    
-                }
-                themestats[pop][t][9]/=sampleperpop; //average themes per song
-                        
-            
-            
-            
-            
-            }     
-          }
-          
-          
-    }
-  
-        
-        
-
+ 
     public void calculateSongSharing(){
         output3= new int[population.emppop.length][memorylength][memorylength];
         for (int i=0; i<population.emppop.length; i++){ //for each individual!! (ID-A)
@@ -527,7 +454,86 @@ public class WhaleMeasureStatistics {
           }
         }
                 
+           public void calculateThemeStats(){
+         for(int pop=0; pop<subpopsize.length;pop++){
+            for(int t=0; t<memorylength;t++){           
+                for(int i=0; i<sampleperpop*memorylength*numSylls; i++){
+                    if(themefreq[pop][t][i]==0){
+                        break;
+                    }
+                    else{
+                    themestats[pop][t][5]++;
+                    }
+                }
+            }
+         }
+                
+          for(int pop=0; pop<subpopsize.length;pop++){
+            for(int t=0; t<memorylength;t++){    
+                double c = themestats[pop][t][5]*0.02;   
+                for(int i=0; i<sampleperpop*memorylength*numSylls; i++){    
+                    if(themefreq[pop][t][i]==0){
+                        break;
+                    }
+                    else{
+                        if(themefreq[pop][t][i]==1){
+                            themestats[pop][t][1]++; //number of singletons
+                        }
+                        if(themefreq[pop][t][i]<4){
+                            themestats[pop][t][2]++; //number of rare themes
+                        }
+                        if(themefreq[pop][t][i]>1&&themefreq[pop][t][i]<c){ 
+                            themestats[pop][t][3]++;    //number of intermediate themes
+                        }
+                        if(themefreq[pop][t][i]>c){ 
+                            themestats[pop][t][4]++;    //numbers of common themes
+                        }
+                        if(themefreq[pop][t][i]>themestats[pop][t][6]){
+                            themestats[pop][t][6]=themefreq[pop][t][i]; //number of IDs singing the most common theme
+                        }  
+                        themestats[pop][t][7]=+(themefreq[pop][t][i]/themetot[pop][t])*(Math.log(themefreq[pop][t][i]/themetot[pop][t]) / Math.log(2)); //H index
+                        themestats[pop][t][8]=+Math.log(2*(themefreq[pop][t][i]/themetot[pop][t]));
+                    }
+                   
+                }
+                // convert to proportion of all themes in subpop pop at time t;
+                themestats[pop][t][1]/=themestats[pop][t][5];
+                themestats[pop][t][2]/=themestats[pop][t][5];
+                themestats[pop][t][3]/=themestats[pop][t][5];
+                themestats[pop][t][4]/=themestats[pop][t][5];
+                themestats[pop][t][8]=1+themetot[pop][t]*(Math.pow(themestats[pop][t][8],-1)); //Alpha P
+                
+                c=0;
+               
+                for(int i=0; i<sampleperpop; i++){
+                    themestats[pop][t][9]+=themepsong[pop][t][i];
+                    if(themefreq[pop][t][i]==2){
+                            themestats[pop][t][10]++; //songs with 2 themes (minimal)
+                    }
+                    if(themefreq[pop][t][i]==numSylls){
+                            themestats[pop][t][11]++; //songs with max themes
+                    }
+                    if(themefreq[pop][t][i]==Math.round(0.5*numSylls)+1){
+                            themestats[pop][t][12]++; //songs with intermediate themes
+                    }
+                    
+                    
+                }
+                themestats[pop][t][9]/=sampleperpop; //average themes per song
+                        
+            
+            
+            
+            
+            }     
+          }
+          
+          
+    }
+  
         
+        
+
 /* 
            public void calculateSongSimMatrix(){
         output8= new double[subpopsize.length][memorylength][sampleperpop][sampleperpop];

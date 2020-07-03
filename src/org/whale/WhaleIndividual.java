@@ -126,7 +126,7 @@ public class WhaleIndividual  {
 		this.numSylls=param.sylsPerSong;
                 this.numdims=param.numdims;
 		this.mutationVariance=param.mutationVar;
-		this.matchThresh=param.typeThresh*param.typeThresh*param.sylsPerSong;
+		this.matchThresh=param.typeThresh*param.typeThresh;//*param.sylsPerSong;
                 this.memorylength=param.memorylength;
                 this.loglength=param.loglength;
                 this.novbias=param.novbias*0.5; //0.5 because in compareSongsPow, we calculate the squared dissimilarity.
@@ -300,6 +300,44 @@ public class WhaleIndividual  {
 
 		
 	public boolean matchSongs(float[] x, float[] y, int a, int b) {
+                double d=0;
+                double f;
+                double temp=0;
+                int m=0; //number of themes in song A
+                //int aa=a*ns;
+                //int bb=b*ns;
+                
+		for (int i=0; i<numSylls; i++) { //Go through the themes of song a
+                    f=100000;
+                    int aa=a*ns+i*numdims; //Start of theme[i] of song a
+                    if(aa!=-1000){ //if theme in song a is not -1000:
+                        m++;
+                        for (int j=0; j<numSylls; j++) { //Go through themes of song b and find the most similar theme
+                            int bb=b*ns+j*numdims; //Start of theme[j] song b
+                            
+                            for(int k=0; k<numdims; k++){ // Go through the dimensions of theme[i] of song a and theme[j] of song b
+                                temp+=(x[aa]-y[bb])*(x[aa]-y[bb]); 
+                                aa++;
+                                bb++;
+                            }
+                            if (temp<f){
+                                f=temp;                    
+                            }
+                      
+                        }
+                        d+=f;
+                    }
+
+		}
+                d/=m;
+		if(d>matchThresh) {	
+			return false;
+                }
+                        return true;
+    }
+        
+
+                /*           
                 //System.out.println("a = " + a + " & b = " + b + " & ns = " + ns);
 		double d=0;
 		int aa=a*ns;
@@ -316,6 +354,7 @@ public class WhaleIndividual  {
                     }
                     aa++;
                     bb++;
+                    
                     if (d>matchThresh){
                         return false;
                     }
@@ -326,9 +365,10 @@ public class WhaleIndividual  {
 		//}
 		//System.out.println(matchThresh+" "+d+" ");
 		return true;
-		
-		
-	}
+		*/
+        	
+	
+        
         	public boolean matchThemes(float[] x, float[] y, int a, int b) {
                 //System.out.println("a = " + a + " & b = " + b + " & ns = " + ns);
 		
@@ -339,7 +379,7 @@ public class WhaleIndividual  {
                     d+=(x[aa]-y[bb])*(x[aa]-y[bb]);
                     aa++;
                     bb++;
-                    if (d>(matchThreshTheme/numSylls)){
+                    if (d>(matchThreshTheme)){
                         return false;
                     }
 		}
@@ -373,26 +413,36 @@ public class WhaleIndividual  {
         }
 	
 	public double compareSongs(float[] x, float[] y, int a, int b) {
-		double d=0;
+                double d=0;
+                double f;
+                double temp=0;
+                int m=0;
+                //int aa=a*ns;
+                //int bb=b*ns;
                 
-                int aa=a*ns;
-                int bb=b*ns;
-                
-		for (int i=0; i<ns; i++) {
-                    if(aa!=-1000){
-                        if(bb==-1000){
-                            d+=missingtheme;
+		for (int i=0; i<numSylls; i++) { //Go through the themes of song a
+                    f=100000;
+                    int aa=a*ns+i*numdims; //Start of theme[i] of song a
+                    if(aa!=-1000){ //if theme in song a is not -1000:
+                        m++;
+                        for (int j=0; j<numSylls; j++) { //Go through themes of song b and find the most similar theme
+                            int bb=b*ns+j*numdims; //Start of theme[j] song b
+                            
+                            for(int k=0; k<numdims; k++){ // Go through the dimensions of theme[i] of song a and theme[j] of song b
+                                temp+=(x[aa]-y[bb])*(x[aa]-y[bb]); 
+                                aa++;
+                                bb++;
+                            }
+                            if (temp<f){
+                                f=temp;                    
+                            }
+                      
                         }
-                        else{
-                    d+=(x[aa]-y[bb])*(x[aa]-y[bb]);
-                        }
+                        d+=f;
                     }
-                    aa++;
-                    bb++;
-			//System.out.println(d+" "+x[i]+" "+y[i]);
-		}
+                }
                 
-		return (Math.sqrt(d/(0.0+numSylls)));	
+		return (Math.sqrt(d/(0.0+m)));	
 	}
 	
 	public double[] merge(double[] a, double[]b) {
