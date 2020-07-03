@@ -22,10 +22,17 @@ public class WhalePriors {
 
         //public double[] variables=new double[] {1000, 8, 10, 0.1, 0, 0.06};
         public double[] variables=new double[] {500, 10, 10, 2, 0, 0.06};
+
+        // Not the correct population numbers: excluding pop BSB2!!
         public int[] popsizes={6000,6000,4000,4000,10000,10000,3000,5000};
         public int[] minpops={250, 750, 350, 950, 400, 100, 65, 350};
         public int[] kpops={12000, 9000, 4000, 4500, 11000, 13000, 7000, 6000};
-        
+              
+/* Should be these numbers (with population BSB2 included) - but I can't run them on my laptop: Java runs out of heap space
+        public int[] popsizes={6000,6000,240,4000,4000,10000,10000,3000,5000};
+        public int[] minpops={250, 750, 35, 350, 950, 400, 100, 65, 350};
+        public int[] kpops={12000, 9000, 2000, 4000, 4500, 11000, 13000, 7000, 6000};
+*/        
         
 	int[] priorType= new int[]{1, 2, 1, 1};
 	//double[] priorMax=new double[] {0.02, 2, 0.02, 20};

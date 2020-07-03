@@ -269,6 +269,19 @@ public class Whale {
                         System.out.print(inds[ii].newRepertoire[j]+" ");
                     }
                     System.out.println();
+                    ii+=1;
+                    System.out.print(i+" "+ii+" "+counter+" "+population.currentpopsizes[i]+" "+population.breeding+" "+" "+population.problearn1+" "+param.mutationVar+" "+param.novbias+" "+param.ntutors+" ");
+                    for (int j=0; j<inds[ii].ns; j++){
+                        System.out.print(inds[ii].newRepertoire[j]+" ");
+                    }
+                    System.out.println();
+                    ii+=1;
+                    System.out.print(i+" "+ii+" "+counter+" "+population.currentpopsizes[i]+" "+population.breeding+" "+" "+population.problearn1+" "+param.mutationVar+" "+param.novbias+" "+param.ntutors+" ");
+                    for (int j=0; j<inds[ii].ns; j++){
+                        System.out.print(inds[ii].newRepertoire[j]+" ");
+                    }
+                    System.out.println();
+                    
                 }
                 }
 		//t4+=System.nanoTime()-t1;

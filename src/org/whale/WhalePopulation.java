@@ -56,7 +56,7 @@ public class WhalePopulation {
             	//System.out.println("WhalePopulation");
 
 		this.pop=pop;
-                this.emppop=emppop;//how to make sure pop=sum(subpopulations)??
+                this.emppop=emppop;
 		this.param=param;
 		this.subpopsize=param.popsizes;
                 this.minpops=param.minpops;
@@ -338,6 +338,7 @@ public class WhalePopulation {
                    }
                }
             }
+          
             
             boolean found=true;
             int a=0;

@@ -28,8 +28,12 @@ public class WhaleMeasureStatistics {
         Whale wh;
         WhaleIndividual individual;
         EmpData ed;
-	
+        int sampleperpop=100;
         int memorylength=100;
+        int numSylls;
+        int numdims;
+        int memorySize;
+
 	
       
         int maxlearn=10;
@@ -39,16 +43,26 @@ public class WhaleMeasureStatistics {
         int[] membuffer;
         int[][][] output1;
         int[][][] output2;
-        int[][][] output3;
+        int[][][] output3; //songsharing
         int[] subpopsize;
         int[][][] sharedsongs;
         double[][][] output4;
-        double[][][][] output6;
+        double[][][][] output6; //SharingAcrossPops
         double[][] output7;
         double[] outputavg;
 	double overallsongsharing=0;
         	double[][] diss, dissSyl;
 	double dsim=0.04;
+        int ns;
+        int[][][] output8;
+        float[] buffer;
+        int[][][] songfreq;
+        int[][][] themefreq; //frequency of each theme type
+        int[][] themetot; //total number of themes
+        int[][][] themepsong; //themes per song 
+        double[][][] themestats; //summary stats for themes
+        
+        int[][] singlt;
 	
 	boolean typeEmpirical=true;
 	
@@ -56,11 +70,17 @@ public class WhaleMeasureStatistics {
             this.population=population;
             this.param=param; 
             this.memorylength=param.loglength;
+            this.numSylls=param.sylsPerSong;
+            this.numdims=param.numdims;
   //          this.individual=individual;
             typeEmpirical=true;
             dsim=param.typeThresh;
             this.subpopsize=population.subpopsize;
+            memorySize=numSylls*numdims*memorylength;
+            ns=numSylls*numdims;
+            
             System.out.println("WhaleMeasureStatistics");
+            
             
             //diss=population.calculateEmpDissimilarityMatrix(0);
             //ids=population.calculateEmpIDs();
@@ -73,6 +93,10 @@ public class WhaleMeasureStatistics {
             calculateSharingAcrossPops();
             calculateSummaryAcrossPopulations();
             calculateSongDiversity();
+            calculateSongTypes();
+            calculateThemeSharing();
+            calculateThemeTypes();
+            calculateThemeStats();
             
             System.out.print(param.mutationVar+" "+param.novbias+" "+param.ntutors+" "+param.problearn1+" ");
             for (int i=0; i<outputavg.length; i++){
@@ -90,6 +114,7 @@ public class WhaleMeasureStatistics {
             output4=null; 
             output6=null;
             output7=null;
+            
                     
             
         }
@@ -210,20 +235,190 @@ public class WhaleMeasureStatistics {
                 }
             }   
         }
+       
+
+    
         
+        
+        
+
+    public void calculateSongTypes(){
+            buffer= new float[sampleperpop*memorySize];
+            songfreq=new int[subpopsize.length][memorylength][sampleperpop*memorylength];
+            int bufferindex;
+            
+        for(int pop=0; pop<subpopsize.length;pop++){
+            for(int t=0; t<memorylength;t++){
+                buffer= null;
+                bufferindex=0;
+                for (int i=0; i<population.emppop.length; i++){ //for each individual!! (ID-A)
+                  int a=population.emppop[i].subpop; //get the population number of ID-A
+                    if(a==pop){
+                      float[] mema=population.emppop[i].getSongLog(); //Get its songlog
+                        if(bufferindex==0){
+                         System.arraycopy(mema, t*ns, buffer, bufferindex*ns, ns); 
+                         bufferindex++; 
+                        }
+                        else{
+                            for(int j=0; j<bufferindex; j++){
+                                if(population.emppop[i].matchSongs(mema, buffer, t, j)){
+                                songfreq[pop][t][j]++;
+                                }
+                                else{
+                                System.arraycopy(mema, t*ns, buffer, bufferindex*ns, ns); 
+                                bufferindex++;
+                                }
+                            }
+                        }      
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    
+        public void calculateThemeTypes(){
+            buffer= new float[sampleperpop*memorySize];
+            themefreq=new int[subpopsize.length][memorylength][sampleperpop*memorylength*numSylls];
+            themetot=new int[subpopsize.length][memorylength];
+            themepsong= new int [subpopsize.length][memorylength][sampleperpop];
+            //themefreq=new int[subpopsize.length][memorylength][sampleperpop*memorylength*numSylls];
+            int bufferindex;
+            
+        for(int pop=0; pop<subpopsize.length;pop++){
+            int x=0;
+            for(int t=0; t<memorylength;t++){
+                buffer= null;
+                bufferindex=0;
+                for (int i=0; i<population.emppop.length; i++){ //for each individual!! 
+                  int a=population.emppop[i].subpop; //get the subpopulation 
+                    if(a==pop){
+                      float[] mema=population.emppop[i].getSongLog(); //Get its songlog
+                        for(int k=0; k<numSylls; k++){ //go through the themes in its song
+                            if(mema[t*ns+k*numdims]!=-1000){
+                                themepsong[pop][t][x]++;
+                                if(bufferindex>0){
+                                    for(int j=0; j<bufferindex; j++){
+                                        themetot[pop][t]++; //total number of themes in the (sub)pop at time t
+                                        if(population.emppop[i].matchThemes(mema, buffer, t*numSylls+k, j)){
+                                        themefreq[pop][t][j]++;
+                                        }
+                                        else{
+                                        System.arraycopy(mema, t*ns+k*numdims, buffer, bufferindex*numdims, numdims); 
+                                        bufferindex++;
+                                        }
+                                    
+                                } 
+                            }
+                            else if(bufferindex==0){
+                                
+                                    System.arraycopy(mema, t*numdims, buffer, bufferindex*numdims, numdims); 
+                                    bufferindex++; 
+                                }
+                            }
+                        }
+                        x++;
+                    }
+                }
+            }
+        }
+    }
+
+    
+    public void calculateThemeStats(){
+         for(int pop=0; pop<subpopsize.length;pop++){
+            for(int t=0; t<memorylength;t++){           
+                for(int i=0; i<sampleperpop*memorylength*numSylls; i++){
+                    if(themefreq[pop][t][i]==0){
+                        break;
+                    }
+                    else{
+                    themestats[pop][t][5]++;
+                    }
+                }
+            }
+         }
+                
+          for(int pop=0; pop<subpopsize.length;pop++){
+            for(int t=0; t<memorylength;t++){    
+                double c = themestats[pop][t][5]*0.02;   
+                for(int i=0; i<sampleperpop*memorylength*numSylls; i++){    
+                    if(themefreq[pop][t][i]==0){
+                        break;
+                    }
+                    else{
+                        if(themefreq[pop][t][i]==1){
+                            themestats[pop][t][1]++; //number of singletons
+                        }
+                        if(themefreq[pop][t][i]<4){
+                            themestats[pop][t][2]++; //number of rare themes
+                        }
+                        if(themefreq[pop][t][i]>1&&themefreq[pop][t][i]<c){ 
+                            themestats[pop][t][3]++;    //number of intermediate themes
+                        }
+                        if(themefreq[pop][t][i]>c){ 
+                            themestats[pop][t][4]++;    //numbers of common themes
+                        }
+                        if(themefreq[pop][t][i]>themestats[pop][t][6]){
+                            themestats[pop][t][6]=themefreq[pop][t][i]; //number of IDs singing the most common theme
+                        }  
+                        themestats[pop][t][7]=+(themefreq[pop][t][i]/themetot[pop][t])*(Math.log(themefreq[pop][t][i]/themetot[pop][t]) / Math.log(2)); //H index
+                        themestats[pop][t][8]=+Math.log(2*(themefreq[pop][t][i]/themetot[pop][t]));
+                    }
+                   
+                }
+                // convert to proportion of all themes in subpop pop at time t;
+                themestats[pop][t][1]/=themestats[pop][t][5];
+                themestats[pop][t][2]/=themestats[pop][t][5];
+                themestats[pop][t][3]/=themestats[pop][t][5];
+                themestats[pop][t][4]/=themestats[pop][t][5];
+                themestats[pop][t][8]=1+themetot[pop][t]*(Math.pow(themestats[pop][t][8],-1)); //Alpha P
+                
+                c=0;
+               
+                for(int i=0; i<sampleperpop; i++){
+                    themestats[pop][t][9]+=themepsong[pop][t][i];
+                    if(themefreq[pop][t][i]==2){
+                            themestats[pop][t][10]++; //songs with 2 themes (minimal)
+                    }
+                    if(themefreq[pop][t][i]==numSylls){
+                            themestats[pop][t][11]++; //songs with max themes
+                    }
+                    if(themefreq[pop][t][i]==Math.round(0.5*numSylls)+1){
+                            themestats[pop][t][12]++; //songs with intermediate themes
+                    }
+                    
+                    
+                }
+                themestats[pop][t][9]/=sampleperpop; //average themes per song
+                        
+            
+            
+            
+            
+            }     
+          }
+          
+          
+    }
+  
+        
+        
+
     public void calculateSongSharing(){
         output3= new int[population.emppop.length][memorylength][memorylength];
-        for (int i=0; i<population.emppop.length; i++){ //for each individual!! 
-          int a=population.emppop[i].subpop; //get the population number
-          float[] mema=population.emppop[i].getSongLog();
-          for (int j=0; j<population.emppop.length; j++){
-              int b=population.emppop[j].subpop;
-              if (a==b){
-                  float[] memb=population.emppop[j].getSongLog();
-                  for (int g=0; g<memorylength; g++){
-                      for (int h=0; h<memorylength; h++){
-                        if(population.emppop[i].matchSongs(mema, memb, g, h)){
-                            output3[a][g][h]++;
+        for (int i=0; i<population.emppop.length; i++){ //for each individual!! (ID-A)
+          int a=population.emppop[i].subpop; //get the population number of ID-A
+          float[] mema=population.emppop[i].getSongLog(); //Get its songlog
+          for (int j=0; j<population.emppop.length; j++){ //go through the all others
+              int b=population.emppop[j].subpop; //get its population (ID-B)
+              if (a==b){ //if that population is the same
+                  float[] memb=population.emppop[j].getSongLog(); //get songLog for ID-b
+                  for (int g=0; g<memorylength; g++){ //go through mema: songIDa
+                      for (int h=0; h<memorylength; h++){ //go through memb: songIDb
+                        if(population.emppop[i].matchSongs(mema, memb, g, h)){ //match songs
+                            output3[a][g][h]++; //fill in output: [popa][timepointA(=position in songlog)][timepointB]
                         }
                       }
                   }
@@ -231,7 +426,7 @@ public class WhaleMeasureStatistics {
           }
         }
           
-          
+        //calculate average songsharing per pop  
         output4 = new double[subpopsize.length][memorylength][memorylength];
         for (int i=0; i<subpopsize.length; i++){            //for every population
           double x=population.sampleperpop*(population.sampleperpop-0.0); //x=samplesize pop i * samplesize pop i
@@ -246,19 +441,17 @@ public class WhaleMeasureStatistics {
             }
           }
         }
-        
-        
         }     
     
     public void calculateSongDiversity(){
         int n=population.emppop.length;
         double count=0;
-        for (int i=0; i<n; i++){
-            float[] mema=population.emppop[i].getSongLog();
-            int iter=population.emppop[i].iter;
+        for (int i=0; i<n; i++){ //for each IDa  in emppop
+            float[] mema=population.emppop[i].getSongLog(); //get songlog
+            int iter=population.emppop[i].iter; //get iter for each id
             
-            for (int j=0; j<n; j++){
-                float[] memb=population.emppop[j].getSongLog();
+            for (int j=0; j<n; j++){ //for each IDb
+                float[] memb=population.emppop[j].getSongLog(); //
                 if (population.emppop[i].matchSongs(mema, memb, iter, iter)){
                     count++;
                 }
@@ -311,7 +504,53 @@ public class WhaleMeasureStatistics {
             
         }
         
+        public void calculateThemeSharing(){
+          for (int i=0; i<population.emppop.length; i++){ //for each individual!! (ID-A)
+            int a=population.emppop[i].subpop; //get the population number of ID-A
+            float[] mema=population.emppop[i].getSongLog(); //Get its songlog: mema
+                for (int j=0; j<population.emppop.length; j++){ //go through all others
+                    int b=population.emppop[j].subpop; //get its population (ID-B)
+                    if (a==b){ //if that population is the same
+                        
+                        float[] memb=population.emppop[j].getSongLog(); //get songLog for ID-b: memb
+                            
+                        for (int g=0; g<memorylength; g++){
+                                for (int h=0; h<memorylength; h++){
+                                     if(population.emppop[i].matchSongs(mema, memb, g, h)){
+                                        output3[a][g][h]++;
+
+        }
+                                     }       
+                        }
+                    }
+                }
+          }
+        }
+                
+        
 /* 
+           public void calculateSongSimMatrix(){
+        output8= new double[subpopsize.length][memorylength][sampleperpop][sampleperpop];
+        for (int i=0; i<population.emppop.length; i++){ //for each individual!! (ID-A)
+          int a=population.emppop[i].subpop; //get the population number of ID-A
+          float[] mema=population.emppop[i].getSongLog(); //Get its songlog
+          for (int j=0; j<population.emppop.length; j++){ //go through the all others
+              int b=population.emppop[j].subpop; //get its population (ID-B)
+              if (a==b){ //if that population is the same
+                  float[] memb=population.emppop[j].getSongLog(); //get songLog for ID-b
+                  for (int g=0; g<memorylength; g++){ //go through mema: songIDa
+                      for (int h=0; h<memorylength; h++){ //go through memb: songIDb
+                            output8[a][g][i][j]=population.emppop[i].compareSongsPow(mema, memb, g, h); //compare songs
+                            
+                        }
+                      }
+                  }
+              }
+          }
+        }    
+        
+        
+        
         public void calculatePopSongSharing(){
         int[][][][] outputpop= new int[population.emppop.length][population.subpopsize.length][param.memorylength][param.memorylength];
         for (int i=0; i<population.emppop.length; i++){ //for each individual!!
@@ -352,8 +591,58 @@ public class WhaleMeasureStatistics {
         
         
         }  
+        
+        
+        
+    public void calculateSingletons(){
+        int y;
+        double x=population.sampleperpop*(population.sampleperpop-0.0);
+        singlt= new int[subpopsize.length][memorylength];
+        //rare= new int[subpopsize.length][memorylength];
+        
+        for (int i=0; i<subpopsize.length; i++){
+            for(int j=0; j<memorylength; j++){
+                for(int k=0; k<sampleperpop; k++){
+                    y=0;
+                    for(int l=0; l<sampleperpop; l++){
+                        //if(output8[i][j][k][l]<matchthresh){
+                            y++;
+                        }
+                        if(y==1){
+                            singlt[i][j]++;
+                 }
+                }
+            }
+        }
+            
+     }
+        
+            
+    public void calculateThemepSongStats(){
+        for(int pop=0; pop<subpopsize.length;pop++){
+            for(int t=0; t<memorylength;t++){ 
+                for(int i=0; i<sampleperpop; i++){
+                    themestats[pop][t][9]+=themepsong[pop][t][i];
+                    if(themefreq[pop][t][i]==2){
+                            themestats[pop][t][10]++; //songs with 2 themes (minimal)
+                    }
+                    if(themefreq[pop][t][i]==numSylls){
+                            themestats[pop][t][11]++; //songs with max themes
+                    }
+                    if(themefreq[pop][t][i]==Math.round(0.5*numSylls)+1){
+                            themestats[pop][t][12]++; //songs with intermediate themes
+                    }
+                    
+                    
+                }
+                themestats[pop][t][9]/=sampleperpop; //average themes per song
+            }
+        }
+    }  
 */        
         
         
-}       
+
+}
+                        
         

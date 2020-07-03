@@ -70,7 +70,7 @@ public class WhaleIndividual  {
         int iter=0;
         int iterlog=0;
         int maxtheme=10; //parameters?
-        double probadd=0.1; //parameters? probability of adding a completely new theme
+        double probadd=0.01; //parameters? probability of adding a completely new theme
 
         double novbias = 1;
          
@@ -306,6 +306,7 @@ public class WhaleIndividual  {
                 int bb=b*ns;
 		for (int i=0; i<ns; i++) {
                     if(aa!=-1000){
+                        
                         if(bb==-1000){
                             d+=missingtheme;
                         }
@@ -401,15 +402,54 @@ public class WhaleIndividual  {
 		}
 		return c;
 	}
-        
-        public double compareSongsPow(float[] x, float[] y, int a, int b) {
-		double d=0;
+        public double compareSongsPow(float[] x, float[] y, int a, int b) { //might need some optimalisation??
+                double d=0;
+                double f;
+                double temp=0;
+                int m=0;
+                //int aa=a*ns;
+                //int bb=b*ns;
                 
+		for (int i=0; i<numSylls; i++) { //Go through the themes of song a
+                    f=100000;
+                    int aa=a*ns+i*numdims; //Start of theme[i] of song a
+                    if(aa!=-1000){ //if theme in song a is not -1000:
+                        m++;
+                        for (int j=0; j<numSylls; j++) { //Go through themes of song b and find the most similar theme
+                            int bb=b*ns+j*numdims; //Start of theme[j] song b
+                            
+                            for(int k=0; k<numdims; k++){ // Go through the dimensions of theme[i] of song a and theme[j] of song b
+                                temp+=(x[aa]-y[bb])*(x[aa]-y[bb]); 
+                                aa++;
+                                bb++;
+                            }
+                            if (temp<f){
+                                f=temp;                    
+                            }
+                      
+                        }
+                        d+=f;
+                    }
+      
+               
+			//System.out.println(d+" "+x[i]+" "+y[i]);
+		}
+                //System.out.println("dissim = " + Math.sqrt(d/(0.0+numSylls)) + "novelty bias = " + Math.pow(d/(0.0+numSylls),novbias));	
+ 
+		//return (pow(d/(0.0+numSylls),novbias));	
+                return (pow(d/(0.0+m),novbias));	//divide by number of syllables in song A
+                
+	}
+        
+        public double compareSongsPow2(float[] x, float[] y, int a, int b) {
+		double d=0;
+
                 int aa=a*ns;
                 int bb=b*ns;
                 
 		for (int i=0; i<ns; i++) {
                     if(aa!=-1000){
+
                         if(bb==-1000){
                             d+=missingtheme;
                         }
@@ -499,7 +539,7 @@ public class WhaleIndividual  {
                             mindist=x;
                         } 
                     }
-                    if (mindist>matchThresh){
+                    if (mindist>(matchThresh)){
                         tutsongsim[i]=mindist;   //add it to the tutor song similarity array
                         //Change ns
                         System.arraycopy(tutors[i].repertoire, 0, songBuffer, songtypeCount*ns, ns); //add it to the songbuffer
@@ -692,11 +732,46 @@ public class WhaleIndividual  {
             
             
         }
-        
+
         public float[] dropTheme(){
             int m=0;
       
-            for (int i=0; i < numSylls; i++) { //for each theme in a newRepertoire  
+            for (int i=0; i < numSylls; i++) { //Counting the number of themes
+                            if(newRepertoire[i*numdims]!=-1000){ 
+                            m++;
+                            }
+                        }
+            
+            if(m>2){
+                for (int i=0; i < numSylls; i++) { //for each theme in a newRepertoire  
+                        int k=0;
+
+                        for (int j=0; j<(songBuffer.length/numdims); j++) {  //go through each theme in the songbuffer (not all tutors repertoires...)
+                            
+                            if(matchThemes(newRepertoire, songBuffer, i, j)){ 
+                            k++;
+                            }
+                        }
+                    double dropprob=(1/(1+ Math.pow(0.5,(k+3)))); //probability of learning a theme (not dropping the theme)- 
+                    // dependent on the frequency of each theme (k) and the number of themes in the tutor song //??
+
+                    if (param.nextDouble()>dropprob){ //
+                        //System.out.println("dropTheme: k= " + k + " dropprob= " + dropprob + " chance= " + chance)  ;
+                        for(int l=0; l<numdims;l++){
+                            newRepertoire[(i*numdims)+l]=-1000; //drop that theme (all dimensions revert to -1000)
+                        }
+                    }
+                    
+                }
+            }
+            
+                return newRepertoire;
+        }
+        
+        public float[] dropTheme2(){
+            int m=0;
+      
+            for (int i=0; i < numSylls; i++) { //Counting the number of themes
                             if(newRepertoire[i*numdims]!=-1000){ 
                             m++;
                             }
@@ -729,7 +804,7 @@ public class WhaleIndividual  {
             
         
         
-        public float[] dropTheme2(float[] x){
+        public float[] dropTheme3(float[] x){
             float oldsong[]=x;
             
             int loc=0;
