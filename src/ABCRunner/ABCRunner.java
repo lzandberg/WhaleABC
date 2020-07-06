@@ -79,7 +79,7 @@ public class ABCRunner {
 		System.out.println("HERE WE ARE! "+npc);
 		//numReps=npc*np;
                 
-                npc=1; //50
+                npc=50; 
                 numpops=fileLocation.length;
                 
                 //ChaffinchABC ct=new ChaffinchABC();
@@ -126,7 +126,7 @@ public class ABCRunner {
         public ABCRunner(int a){
             System.out.println("ABCRUNNER");
             np=ncores;
-            npc=1; //50
+            npc=50; 
             iterateRound(0);
         }
         
