@@ -31,9 +31,9 @@ public class WhalePopulation {
 	int px, py=0;
         int[][] lookUps;
         int[][] emplocs;
-        int[] subpopsize = new int[] {1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000};
-        int[] minpops=new int[10];
-        int[] currentpopsizes=new int[10];
+        int[] subpopsize = new int[] {1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000};
+        int[] minpops=new int[12];//
+        int[] currentpopsizes=new int[12];//
         double growthrate=0.05;
         int minAge=10;
         int[] subpop;
