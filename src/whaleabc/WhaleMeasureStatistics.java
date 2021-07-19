@@ -45,7 +45,7 @@ public class WhaleMeasureStatistics {
         
         
         
-        int popoffset=6;
+        int popoffset=5;
         int popoffsetnh=0;
         /*
         int[][] samplesizes={{1,6,0,4,0,0,3,6,6,6,6},           //REVERSED!!!
@@ -166,9 +166,10 @@ public class WhaleMeasureStatistics {
             //required stats for inference: 2, 4, 17, 20, 21, 22
             //System.out.println(themefreqstats[0]);
             //System.out.println("Sharing: "+derivedthemesharingstats[0]+" "+derivedthemesharingstats[1]+" "+derivedthemesharingstats[2]+" "+themesharingstats[1][1]);
-            //sample=sampleIndividualsAll();
-            //calculateThemeAgeAndSpread(sample);
-   
+            if (derivedthemesharingstats[0]>0.3){
+                sample=sampleIndividualsAll(11,11);
+                calculateThemeAgeAndSpread(sample);
+            }
         }
         
         public WhaleIndividual[][][] sampleIndividuals(){
@@ -560,12 +561,16 @@ public class WhaleMeasureStatistics {
         }
         
         
+        
+        
         public void calculateThemeAgeAndSpread(WhaleIndividual[][][] sample){
             int n=sample.length;
             int m=sample[0].length;
             
-            double[][] shared=new double[11][12];
-            double[] count=new double[12];
+            int np=11;
+            
+            double[][] shared=new double[11][np];
+            double[] count=new double[np];
             
             for (int i=0; i<n; i++){
                 for (int j=0; j<sample[i][0].length; j++){
@@ -574,9 +579,9 @@ public class WhaleMeasureStatistics {
                     for (int k=0; k<a.ns; k++){
                         if (y[k]!=-1000){
                             for (int ii=0; ii<n; ii++){
-                                int dist=i-ii+5;
-                                if (dist<0){dist+=12;}
-                                if (dist>=12){dist-=12;}
+                                int dist=i-ii+popoffset;
+                                if (dist<0){dist+=np;}
+                                if (dist>=np){dist-=np;}
                                 for (int kk=0; kk<sample[ii][0].length; kk++){
                                     WhaleIndividual b=sample[ii][0][kk];
                                     float[] x=b.getSongLog();
@@ -595,12 +600,12 @@ public class WhaleMeasureStatistics {
                     }
                 }
             }
-            
+            System.out.println();
             for (int i=0; i<shared.length; i++){
                 for (int j=0; j<shared[0].length; j++){
-                    System.out.print((shared[i][j]/count[j])+" ");
+                    System.out.println(i+" "+j+" "+(shared[i][j]/count[j]));
                 }
-                System.out.println();
+                
             }
             
    
