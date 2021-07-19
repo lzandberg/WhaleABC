@@ -21,7 +21,7 @@ import java.util.Random;
 public class Whale {
 	
     //boolean breakSimulation=false;
-        boolean verbose=true;
+        boolean verbose=false;
 	WhaleParameters param;
 	WhaleIndividual[] inds;
 	WhalePopulation population;
@@ -175,13 +175,13 @@ public class Whale {
                 population.learnSongs();
                 
                 if (verbose&&(counter==9)){
-                    //if (p>20){
-                        //WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, param, true);
-                        //System.out.println(sr.id+" "+sim+" "+((p-9)/10)+" "+ms.out4[0]+" "+ms.out4[1]+" "+ms.out4[2]+" "+ms.out4[3]);
+                    if (p>20){
+                        WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, param, true);
+                        System.out.println(sr.id+" "+sim+" "+((p-9)/10)+" "+ms.out4[0]+" "+ms.out4[1]+" "+ms.out4[2]+" "+ms.out4[3]);
                         //double[]x={sr.id,sim,((p-9)/10),ms.out4[0],ms.out4[1],ms.out4[2],ms.out4[3]};
                         //resultstore.add(x);
-                            //for (int i=0; i<ms.out4.length; i++){
-                        //    System.out.print(ms.out4[i]+" ");
+                        //for (int i=0; i<ms.out4.length; i++){
+                          //  System.out.print(ms.out4[i]+" ");
                         //}
                         /*
                         for (int i=0; i<ms.out1.length; i++){
@@ -196,7 +196,7 @@ public class Whale {
                         */
                         //System.out.println();
                         //System.out.println("Sharing: "+p+" "+ms.out[0]+" "+ms.out[1]+" "+ms.out[2]);
-                    //}
+                    }
                     //System.out.println(p);
                     /*if (p==499){
                         WhaleMeasureStatistics ms=new WhaleMeasureStatistics(population, param);
