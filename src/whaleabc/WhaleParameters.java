@@ -32,12 +32,17 @@ public class WhaleParameters implements Serializable {
     
     
     private ZigguratNormalizedGaussianSampler zng=new ZigguratNormalizedGaussianSampler(this);
+        
+    int mutationCounter=0;
+    int insertionCounter=0;
+    int deletionCounter=0;
+    
     
         int hemisphere=0;
     
         int minThemes=2;
         int maxThemes=11;
-    
+        
     
 	int modelType=1;
 	int nYears=10;
@@ -63,7 +68,7 @@ public class WhaleParameters implements Serializable {
 	int sylsPerSong=11;
         int numdims=2;
         int memorylength=50;
-        int memorysize=numdims*sylsPerSong*memorylength;
+        //int memorysize=numdims*sylsPerSong*memorylength;
         int ntutors=10;
 	double mutationVar=0.08;
 	int maxlearn=10;
@@ -111,7 +116,8 @@ public class WhaleParameters implements Serializable {
                 hemisphere=(int)q[6];
                 
 		mutationVar=p[0];
-		novbias=p[1];
+                memorylength=(int)p[1];
+		//novbias=p[1];
                 problearn1=p[2];
                 ntutors=(int)p[3];
                 dropparam=p[4];
