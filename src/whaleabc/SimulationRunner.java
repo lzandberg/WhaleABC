@@ -16,7 +16,8 @@ import java.util.LinkedList;
  * @author rflachlan
  */
 public class SimulationRunner {
-    int type=0;
+    boolean printBestTrajectories=false; 
+   int type=0;
     int n, id, round;
     long seed;
     
@@ -108,25 +109,38 @@ public class SimulationRunner {
             if (p.hemisphere==0){
                 whale=new Whale(x, p.variables, p.popsizessh, p.minpopssh, p.kpopssh, p.nextLong(), i, this);
             }
-            else{
+            else if (p.hemisphere==1){
                 whale=new Whale(x, p.variables, p.popsizesnh, p.minpopsnh, p.kpopsnh, p.nextLong(), i, this);
+            }
+            else if (p.hemisphere==2){
+                whale=new Whale(x, p.variables, p.popsizessh2, p.minpopssh2, p.kpopssh2, p.nextLong(), i, this);
+            }
+            else {
+                whale=new Whale(x, p.variables, p.popsizessh3, p.minpopssh3, p.kpopssh3, p.nextLong(), i, this);
             }
             double[] simstats=new double[p.statindices.length];
                 for (int j=0; j<p.statindices.length; j++){
                 simstats[j]=whale.wms.out[p.statindices[j]];
             }
-            score[i]=calculateDifference(empstats, simstats);
+            //simstats[p.statindices.length]=whale.param.mutationCounter;
+            //simstats[p.statindices.length+1]=whale.param.insertionCounter;
+            //simstats[p.statindices.length+2]=whale.param.deletionCounter;
+            int[] tr=p.transf;
+            score[i]=calculateDifference(empstats, simstats, tr);
             //System.out.println(id+" "+i+" "+n+" "+score[i]+" "+simstats[0]+" "+simstats[1]+" "+simstats[2]+" "+simstats[3]+" "+simstats[4]+" "+simstats[5]);
-            System.out.println(id+" "+i+" "+n+" "+score[i]+" "+x[0]+" "+x[1]+" "+x[2]+" "+x[3]+" "+x[4]+" "+x[5]);
-            
-            if (score[i]<2){
-                System.out.println(id+" Accept run "+score);
-                whale.wms.traceThemes(id);
+            System.out.println(id+" "+i+" "+n+" "+score[i]+" "+x[0]+" "+x[1]+" "+x[2]+" "+x[3]+" "+x[4]+" "+x[5]+" "+whale.param.mutationCounter+" "+whale.param.insertionCounter+" "+whale.param.deletionCounter+" "+(whale.wms.out[14]-whale.wms.out[18])+" "+simstats[simstats.length-3]);
+            if(printBestTrajectories){
+                if (score[i]<2){
+                    System.out.println(id+" Accept run "+score);
+                    whale.wms.traceThemes(id);
+                }
             }
             
-            stats[i]=new double[whale.wms.out.length];
+            stats[i]=new double[whale.wms.out.length+3];
             System.arraycopy(whale.wms.out, 0, stats[i], 0, whale.wms.out.length);
-
+            stats[i][whale.wms.out.length]=whale.param.mutationCounter;
+            stats[i][whale.wms.out.length+1]=whale.param.insertionCounter;
+            stats[i][whale.wms.out.length+2]=whale.param.deletionCounter;
             whale=null;
             System.gc();
         }
@@ -147,10 +161,10 @@ public class SimulationRunner {
 		
     }
                 
-    public double calculateDifference(double[] x1, double[] x2) {
+    public double calculateDifference(double[] x1, double[] x2, int[] t) {
 		
-        double[] compsx=calculatePLSComponents(x1);
-        double[] compsy=calculatePLSComponents(x2);
+        double[] compsx=calculatePLSComponents(x1, t);
+        double[] compsy=calculatePLSComponents(x2, t);
         for (int i=0; i<x1.length; i++){
             if (Double.isNaN(x1[i])){System.out.println("NaN error: xs: "+i);}
             if (Double.isNaN(x2[i])){System.out.println("NaN error: ys: "+i);}
@@ -168,21 +182,31 @@ public class SimulationRunner {
 		System.out.println("NaN error: "+i);
 		d[i]=1000000000;
             }
+            //double q=Math.sqrt(d[i]*d[i]);
+            //if (q<0.001){q=0.001;}
+            //r+=Math.log(q);
             r+=d[i]*d[i];
         }
-		//System.out.println(r);
+	//System.out.println(x1[compsx.length-3]+" "+x2[compsx.length-3]+" "+compsx[compsx.length-3]+" "+compsy[compsx.length-3]+" "+sds[compsx.length-3])	;//System.out.println(r);
         return Math.sqrt(r);	
+        //return Math.exp(r/(compsx.length+0.0));
     }
 	
-    public double[] calculatePLSComponents(double[]x) {
+    public double[] calculatePLSComponents(double[]x, int[]t) {
         
         
 	double[] out=new double[x.length];
 	
 	for (int i=0; i<x.length; i++){
-            out[i]+=((x[i]-means[i])/sds[i]);
+            double y=x[i];
+            if (t[i]==1){y=Math.sqrt(y);}
+            if (t[i]==2){y=Math.log(y+0.001);}
+            
+            out[i]+=((y-means[i])/sds[i]);
             if(Double.isNaN(x[i])){System.out.println(i);}
+            //System.out.print(x[i]+" ");
         }
+        //System.out.println();
 
 	return out;
     }
