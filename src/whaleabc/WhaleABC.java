@@ -13,8 +13,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
+//import org.apache.commons.exec.CommandLine;
+//import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 
 public class WhaleABC {
@@ -38,8 +38,10 @@ public class WhaleABC {
 
         
 	
-        //double[] thresholds={6, 5.5, 5, 4.5, 4, 3.5, 3,2.75, 2.5, 2.25, 2.125, 2, 1.875, 1.75, 1.625, 1.5, 1.375, 1.25, 1.125, 1, 0.875, 0.75};
-        
+        //double[] thresholds={8, 6, 5.5, 5, 4.5, 4, 3.5, 3,2.75, 2.5, 2.25, 2.125, 2, 1.875, 1.75, 1.625, 1.5, 1.375, 1.25, 1.125, 1, 0.875, 0.75};
+        //double[] thresholds={5, 4, 3.5, 3,2.75, 2.5, 2.25, 2.125, 2, 1.875, 1.75, 1.625, 1.5, 1.375, 1.25, 1.125, 1, 0.875, 0.75};
+                
+//double[] thresholds={3, 2, 1, 0.8, 0.6, 0.5, 0.4, 0.3, 0.25, 0.125, 0.08, 0.04, 0.02, 0.01, 0.005, 0.002, 0.001, 0.0005};
         //Here are thresholds for NH simulations:
         double[] thresholds={100, 100, 100};
         
@@ -47,7 +49,7 @@ public class WhaleABC {
         int[] selected;
 	
        
-        public String[] fileLocation={"/home/robertlachlan/Desktop"};
+        public String[] fileLocation={"/home/roblachlan/Desktop"};
 	
         int ncores=64;
 	int np=0;
@@ -308,12 +310,12 @@ public class WhaleABC {
             }
         
         
-            for (int i=0; i<cov.length; i++){
-                System.out.println("COV: "+i+" "+cov[i][0]+" "+cov[i].length);
-            }
-            for (int i=0; i<weights.length; i++){
-                System.out.println("WEI: "+i+" "+weights[i]);
-            }
+            //for (int i=0; i<cov.length; i++){
+            //    System.out.println("COV: "+i+" "+cov[i][0]+" "+cov[i].length);
+            //}
+            //for (int i=0; i<weights.length; i++){
+            //   System.out.println("WEI: "+i+" "+weights[i]);
+            //}
         
         }
 	
