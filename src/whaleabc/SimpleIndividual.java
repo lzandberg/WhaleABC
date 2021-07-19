@@ -401,6 +401,7 @@ public class SimpleIndividual  extends WhaleIndividual{
                     }
                     double dropprob=dropLookUp[k]; //probability of learning a theme (not dropping the theme)- 
                     if (param.nextDouble()>dropprob){ //
+                        param.deletionCounter++;
                         newRepertoire[i]=-1000; //drop that theme (all dimensions revert to -1000)
                         m--;
                     }
@@ -414,6 +415,7 @@ public class SimpleIndividual  extends WhaleIndividual{
         for(int i=0; i<numSylls; i++){ //for each theme in new repertoire
             if(newRepertoire[i]==-1000){
                 if(param.nextDouble()<probadd){
+                    param.insertionCounter++;
                     newRepertoire[i]=param.nextFloat(); 
                     //System.out.println("Add "+newRepertoire[i]);
                 }
@@ -425,7 +427,7 @@ public class SimpleIndividual  extends WhaleIndividual{
         //
         for (int j=0; j<newRepertoire.length; j++) { //For each syllable-dimension
             if((newRepertoire[j]!=-1000)&&(param.nextDouble()<mutationRate)){
-                
+                param.mutationCounter++;
                 newRepertoire[j]=param.nextFloat(); //Change float k in the repertoire a little bit
                 //System.out.println("mutate " +mutationRate+" "+newRepertoire[j]);
             }
