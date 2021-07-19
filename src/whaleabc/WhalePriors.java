@@ -18,15 +18,27 @@ public class WhalePriors {
                     //mode=1 means that parameters are sampled but no error added. If you want to re-run models.
     
     
-        int hemisphere=0; //hemisphere: 0=SH, 1=NH
-        double[] means={14.8012164243119,8.2719274768121,0.341104619113366,0.022167776346596,0.18404937278838,0.174967906166869};
-        double[] sds={8.28742378754896,1.13837582411023,0.187320031596461,0.052091076961061,0.126785416689095,0.100758794774356};
+        int hemisphere=0; //hemisphere: 0=SH, 1=NH; 2=SH CONST SIZE; 3=SH CONST SIZE AND GROWTH
+       // double[] means={14.8012164243119,8.2719274768121,0.341104619113366,0.022167776346596,0.18404937278838,0.174967906166869};
+       // double[] sds={8.28742378754896,1.13837582411023,0.187320031596461,0.052091076961061,0.126785416689095,0.100758794774356};
         //double[] sds={8.28742378754896,1.13837582411023,0.187320031596461,0.026045538480531,0.126785416689095,0.100758794774356};
+        
+       //double[] means={9.99247596153846, 6.8924681021218, 0.415553103865833, 0.487276889767139, 0.019192266034562, 0.097283409892102, 0.091239471345813};
+        //double[] sds={9.47120342280813,1.61518988175446,0.496285421016963, 0.336849888998494,0.032858293413741,0.1412271239847,0.098241582216889};
+
+        //double[] means={2.4774610,  6.7937517,  0.2502468,  0.5269007, -4.8136007,  0.1138157,  0.2639504};
+        //double[] sds={1.5334037, 1.1470351, 0.3773459, 0.3280696, 1.6020647, 0.1522540, 0.1915151};
+        
+        double[] means={2.4774610,  6.7937517,  0.2502468,  0.5269007, 0.1036771,  0.1138157,  0.2639504};
+        double[] sds={1.5334037, 1.1470351, 0.3773459, 0.3280696, 0.09776841, 0.1522540, 0.1915151};
+        
+        int[] transf={1,0,1,0,1,0,1};
 
         double[]empstats={0.128205128,0.925579976,1.666666667,0.934126984,6.576846453,1.211447786,1,2,0.593434343,0.648584299,
             0.377083333,0.971367521,0.212365591,0.212365591,0.443357868,0.450983809,0.233644444,0.786648079,0.118510965,0.413398407,0.324846903,0.553003635,0.443357868};
 
-        int[] statindices={2, 4,17,20,21,22};
+        //int[] statindices={2, 4,17,20,21,22};
+        int[] statindices={2, 4,5,17,20,21,22};
     
 
 	private static final long DOUBLE_MASK = (1L << 53) - 1;
@@ -42,9 +54,9 @@ public class WhalePriors {
         //public double[] variables=new double[] {5000, 11, 10, 0.002, 0, 0.06, hemisphere}; //FOR LONG SIMULATION!!!
 
         // SH pops are ordered W to E starting with S American Atlantic population
-        public int[] popsizessh={6000,6000, 240, 4000,4000,10000,10000,1125,750,375,1000,5000};     //RIGHT WAY ROUND!!
-        public int[] minpopssh={250, 750, 35, 350, 950, 400, 100, 23, 16, 7, 20, 350};
-        public int[] kpopssh={12000, 9000, 2000, 4500, 4500, 11000, 13000, 2500, 1600, 800, 2150, 6000};
+        public int[] popsizessh={10000,6240, 4000,4000,10000,10000,1125,750,375,1000,5000};     //RIGHT WAY ROUND!!
+        public int[] minpopssh={220, 785, 350, 950, 400, 100, 23, 16, 7, 20, 350};
+        public int[] kpopssh={13500, 11000, 4500, 4500, 11000, 13000, 2500, 1600, 800, 2150, 6000};
               
         
         //NH pops are ordered: Okinawa, Hawaii, Cen Am, Mexico, Caribbean, Cape Verde
@@ -52,6 +64,23 @@ public class WhalePriors {
         public int[] popsizesnh={750,1750, 5500, 325,7370, 130};     //RIGHT WAY ROUND!!
         public int[] minpopsnh={20, 30, 400, 10, 1000, 10};
         public int[] kpopsnh={5308, 12385, 38926, 2300, 52160, 920};
+        
+        
+        
+        // SH pops are ordered W to E starting with S American Atlantic population - CONSTANT POP AT CURRENT DAY
+        //public int[] popsizessh2={1000,1000, 1000,1000,1000,1000,1000,1000,1000,1000,1000};     //RIGHT WAY ROUND!!
+        //public int[] minpopssh2={220, 785, 350, 950, 400, 100, 23, 16, 7, 20, 350};
+        //public int[] kpopssh2={13500, 11000, 4500, 4500, 11000, 13000, 2500, 1600, 800, 2150, 6000};
+        
+        // SH pops are ordered W to E starting with S American Atlantic population - CONSTANT POP AT CURRENT DAY
+        public int[] popsizessh2={1000,1000, 1000,1000,1000,1000,1000,1000,1000,1000,1000};     //RIGHT WAY ROUND!!
+        public int[] minpopssh2={220, 785, 350, 950, 400, 100, 23, 16, 7, 20, 350};
+        public int[] kpopssh2={5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000};
+        
+        // SH pops are ordered W to E starting with S American Atlantic population - CONSTANT POP AT CURRENT DAY AND CONSTANT GROWTH
+        public int[] popsizessh3={1000,1000, 1000,1000,1000,1000,1000,1000,1000,1000,1000};     //RIGHT WAY ROUND!!
+        public int[] minpopssh3={100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
+        public int[] kpopssh3={5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000};
         
        
        
@@ -67,15 +96,15 @@ public class WhalePriors {
         public int[] kpops={12000, 9000, 2000, 4000, 4500, 11000, 13000, 7000, 6000};
 */        
         
-	int[] priorType= new int[]{1, 2, 1, 1, 2, 2};
+	int[] priorType= new int[]{1, 1, 1, 1, 2, 2};
 	//double[] priorMax=new double[] {0.1, 2, 0.05, 20, -1, 0.001};//Normal priors
 	//double[] priorMin=new double[] {0.002, -0.5, 0.001, 3,  8, 0.1};
         
         //double[] priorMax=new double[] {0.001, 2, 0.05, 20, 2, 0.02};   //simple priors
 	//double[] priorMin=new double[] {0.00001, -0.5, 0.0001, 3,  12, 0.0001};
         
-        double[] priorMax=new double[] {0.00001, 2, 0.05, 20, 14, 1.5};   //simple priors
-	double[] priorMin=new double[] {0.000000001, -0.5, 0.0001, 3,  6, 0.75};
+        double[] priorMax=new double[] {0.001, 100, 0.25, 20, 30, 6};   //simple priors
+	double[] priorMin=new double[] {0.0000000001, 1, 0.0000001, 1,  1, 0.2};
         
         //double[] priorMax=new double[] {0.000000069, 1.7, 0.00032, 7.7, 10.07, 1.25};   //best fit priors
 	//double[] priorMin=new double[] {0.000000068, 1.6, 0.00031, 7.69,  10.06, 1.245};
