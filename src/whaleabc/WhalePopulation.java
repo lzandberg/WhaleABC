@@ -49,7 +49,7 @@ public class WhalePopulation {
             {1,0,0,0,0,0,0,0,0,0,1,1}  
         };*/
         
-         int[][] SHInteractionTable={{1,11},
+         int[][] SHInteractionTable={{1,10},
             {0,2},
             {1,3},
             {2,4},
@@ -59,8 +59,7 @@ public class WhalePopulation {
             {6,8},
             {7,9},
             {8,10},
-            {9,11},
-            {10,0}  
+            {9,0} 
         };
         
         int[][] interactionTable;
@@ -121,11 +120,11 @@ public class WhalePopulation {
                 this.minAge=param.loglength*10;
                 this.hemisphere=param.hemisphere;
                 
-                if (hemisphere==0){
-                    interactionTable=SHInteractionTable;
+                if (hemisphere==1){
+                    interactionTable=NHInteractionTable;
                 }
                 else{
-                    interactionTable=NHInteractionTable;
+                    interactionTable=SHInteractionTable;
                 }
                 
 		//this.nthresh=param.neighthresh;
